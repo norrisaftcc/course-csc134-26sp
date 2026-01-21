@@ -4,14 +4,18 @@
 // date
 
 #include <iostream>
+#include <iomanip> // for decimal places
 using namespace std;
 
 int main() {
     // Declare my variables
     string item_name = "apples";    // use whatever you want instead
     int item_count = 100;           // how many we have
-    double item_cost = 0.25;        // price per item
+    double item_cost = .80;        // price per item
     double total_cost;              // don't know yet
+
+    // Magic words to set 2 decimal places - requires <iomanip>
+    cout << setprecision(2) << fixed; 
 
     // Do the work - Welcome them to the store.
     cout << "Welcome to the " << item_name << " store." << endl;

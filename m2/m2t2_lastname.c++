@@ -29,6 +29,8 @@ int main() {
     cout << endl;
     cout << "How many would you like? ";
     cin  >> num_meals; 
+    cout << "Tip amount? (min 0)? "
+    
 
     // Do the calculation
     sub_total = meal_price * num_meals;

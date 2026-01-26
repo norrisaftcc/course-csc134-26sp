@@ -23,6 +23,7 @@ int main() {
     double tax_amount;                      // $ of the actual tax charged
     double total_price;                     // subtotal + tip + tax
 
+    
     // Get user input
     cout << "Welcome to the CSC 134 Grill." << endl;
     cout << "Today's Special: " << meal_name << endl;
@@ -30,7 +31,7 @@ int main() {
     cout << "How many would you like? ";
     cin  >> num_meals; 
     cout << "Tip amount? (min 0)? "
-    
+
 
     // Do the calculation
     sub_total = meal_price * num_meals;

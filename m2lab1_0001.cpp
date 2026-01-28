@@ -44,8 +44,12 @@ int main() {
     profit = customer_price - cost;
 
     // Part 4 -- Print the Output
+    cout << setprecision(2) << fixed; // 2 decimal places
+    cout << " ==== CRATE INFO ====" << endl;
     cout << "Volume is " << volume << " cubic feet." << endl;
-    // TODO: print out the cost, the customer price, and the profit. 
+    cout << "Wholesale price is $" << cost << endl;
+    cout << "Customer price is  $" << customer_price << endl;
+    cout << "Profit per crate:  $" << profit << endl;
 
     return 0; 
 }

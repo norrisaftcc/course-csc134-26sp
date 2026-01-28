@@ -30,13 +30,19 @@ int main() {
     cout << "Height? ";
     cin >> height;
 
-    // Part 3 - Calculation
+    // Part 3 - Calculations
     volume = length * width * height;
+    cost = volume * COST_PER_CUBIC_FOOT; 
+    customer_price = volume * CHARGE_PER_CUBIC_FOOT;
+    profit = customer_price - cost;
 
     // Part 4 - Output
     cout << setprecision(2) << fixed; // 2 decimal places
     cout << "\n---- CRATE INFO ----\n";
     cout << "Volume: " << volume << " cubic feet." << endl;
+    cout << "Cost to make: $" << cost << endl;
+    cout << "Retail price: $" << customer_price << endl;
+    cout << "Profit:       $" << profit << endl << endl;
 
     return 0;
 }

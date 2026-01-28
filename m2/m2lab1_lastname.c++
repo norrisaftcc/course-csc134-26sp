@@ -14,7 +14,7 @@ int main() {
 
     // Part 1 - Set up variables
     // Crate variables
-    double length, width, height; // in feet
+    double length, width, height, volume; // in feet
     // Price variables
     const double COST_PER_CUBIC_FOOT = 0.23;
     const double CHARGE_PER_CUBIC_FOOT = 0.5;
@@ -31,8 +31,12 @@ int main() {
     cin >> height;
 
     // Part 3 - Calculation
+    volume = length * width * height;
 
     // Part 4 - Output
+    cout << setprecision(2) << fixed; // 2 decimal places
+    cout << "\n---- CRATE INFO ----\n";
+    cout << "Volume: " << volume << " cubic feet." << endl;
 
     return 0;
 }

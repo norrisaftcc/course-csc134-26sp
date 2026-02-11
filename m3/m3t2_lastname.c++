@@ -1,5 +1,5 @@
 /*
-M3T1
+M3T2
 Compare two triangles
 */
 
@@ -34,6 +34,16 @@ int main() {
     cout << "Rectangle 1 is area: " << area1 << endl;
     cout << "Rectangle 2 is area: " << area2 << endl;
 
-    
+    // Finally, compare the two rectangles
+    if (area1 > area2) {
+        cout << "The first rectangle is largest." << endl;
+    }
+    if (area2 > area1) {
+        cout << "The second rectangle is largest." << endl;
+    }
+    if (area1 == area2) {
+        cout << "Both are the same size." << endl;
+    }
 
+    return 0;
 }

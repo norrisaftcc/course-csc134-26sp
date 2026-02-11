@@ -29,4 +29,15 @@ int main() {
     cout << "Rectangle #1: " << length1 << " by " << width1 << " is area: " << area1 << endl;
     cout << "Rectangle #2: " << length2 << " by " << width2 << " is area: " << area2 << endl;
 
+    // Which one is larger?
+    if (area1 > area2) {
+        cout << "The first rectangle is bigger." << endl;
+    }
+    if (area2 > area1) {
+        cout << "The second rectangle is bigger." << endl;
+    }
+    if (area1 == area2) {
+        cout << "They are the same size." << endl;
+    }
+
 }

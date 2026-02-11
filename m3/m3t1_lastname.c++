@@ -20,7 +20,7 @@ int main() {
     cout << "Width? ";
     cin  >> width1;
     cout << endl;
-        cout << "Rectangle 2:" << endl;
+    cout << "Rectangle 2:" << endl;
     cout << "Length? ";
     cin  >> length2;
     cout << "Width? ";

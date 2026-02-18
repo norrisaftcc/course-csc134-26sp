@@ -4,15 +4,35 @@ M3T3 - Craps and random numbers
 norrisa
 2/18/26
 */
-
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
 
 using namespace std;
 
+// Function Prototype - Declare what's coming
+int roll();  // returns number from 1 to 6
+
 int main() {
-    
+    // Seed the RNG
+    srand(time(0));
+    // Set up variables
+    int roll1, roll2, total;
+    string status; // win, lose, ...
+
+    roll1 = roll();
+    roll2 = roll();
+    total = roll1 + roll2;
+
+    // Print the dice roll
+    cout << "Roll is: 🎲 " << roll1 << " + " << roll2 << " = " << total << endl;
 
     return 0;
+}
+
+// Function Definition - the whole thing
+int roll() {
+    // returns number from 1 to 6
+    int num = (rand() % 6) + 1;
+    return num;
 }

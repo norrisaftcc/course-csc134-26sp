@@ -17,7 +17,7 @@ int main() {
     // Seed the RNG
     srand(time(0));
     // Set up variables
-    int roll1, roll2, total;
+    int roll1, roll2, total, point;
     string status; // win, lose, ...
 
     roll1 = roll();
@@ -26,6 +26,21 @@ int main() {
 
     // Print the dice roll
     cout << "Roll is: 🎲 " << roll1 << " + " << roll2 << " = " << total << endl;
+
+    // Determine win or loss
+    if (total == 7 || total == 11) { // || is OR
+        status = "win";
+    }
+    else if (total == 2 || total == 3 || total == 12) {
+        status = "lose";
+    }
+    else {
+        // point
+        point = total; // save for later
+        status = "point";
+    }
+
+    cout << "Roll results: " << status << endl;
 
     return 0;
 }

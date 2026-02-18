@@ -18,8 +18,13 @@ int main() {
     int seed = time(0);
     srand(seed);
 
-    int number = roll();
-    cout << "You rolled a " << number << endl;
+    // Roll two dice and show the results
+    int first, second, total;
+    first = roll();
+    second = roll();
+    total = first + second;
+    cout << "You rolled 🎲 " << first << " + " << second << " = " << total << endl;
+    
     return 0;
 }
 

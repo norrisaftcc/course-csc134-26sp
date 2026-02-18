@@ -27,19 +27,10 @@ int main() {
     cout << "You rolled 🎲 " << first << " + " << second << " = " << total << endl;
 
     // How did we do? 7 and 11 is win, 2, 3, 12 is lose, anything else is point.
-    if (total == 7) {
+    if (total == 7 || total == 11) {
         result = "win";
     }
-    else if (total == 11) {
-        result = "win";
-    }
-    else if (total == 2) {
-        result = "lose";
-    }
-    else if (total == 3) {
-        result = "lose";
-    }
-    else if (total == 12) {
+    else if (total == 2 || total == 3 || total == 12) {
         result = "lose";
     }
     else {

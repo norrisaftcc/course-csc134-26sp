@@ -44,6 +44,17 @@ int main() {
 void do_choice_1() {
     cout << "You make the first choice." << endl;
     cout << "And then..."; // you finish it!
+    cout << "1. Another choice" << endl;
+    cout << "2. Still another choice" << endl;
+    int choice;
+    cin >> choice;
+
+    if (choice == 1) {
+        do_choice_3();
+    }
+    else if (choice == 2) {
+        do_choice_4();
+    }
 }
 
 void do_choice_2() {
@@ -52,3 +63,10 @@ void do_choice_2() {
 }
 
 // use the other choices in choice 1 or 2...
+void do_choice_3() {
+    cout << "choice 3" << endl;
+}
+
+void do_choice_4() {
+    cout << "choice 4" << endl;
+}

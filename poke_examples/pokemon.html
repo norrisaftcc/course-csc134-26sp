@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pocket Monsters: CSC 134 Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Press Start 2P', monospace;
+            background-color: #2b2b2b;
+            color: #e0f8d0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        #device {
+            background: #c4cfa1;
+            padding: 20px;
+            border-radius: 10px 10px 40px 10px;
+            box-shadow: inset -5px -5px 15px rgba(0,0,0,0.2), 5px 5px 20px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        #screen-bezel {
+            background: #4a4a4a;
+            padding: 20px 30px;
+            border-radius: 10px 10px 30px 10px;
+            position: relative;
+        }
+
+        #screen-container {
+            position: relative;
+            width: 320px;
+            height: 288px; /* Gameboy ratio approx */
+            background: #8bac0f;
+            overflow: hidden;
+            border: 2px solid #0f380f;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        canvas {
+            image-rendering: pixelated;
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Scanlines and CRT effects */
+        #screen-container::after {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 2;
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+        }
+
+        #ui-layer {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            pointer-events: none;
+        }
+
+        #dialogue-box {
+            background: #e0f8d0;
+            color: #0f380f;
+            border: 4px solid #0f380f;
+            margin: 4px;
+            padding: 8px;
+            min-height: 80px;
+            font-size: 10px;
+            line-height: 1.5;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            pointer-events: auto;
+            cursor: pointer;
+            box-shadow: inset 2px 2px 0px #fff, inset -2px -2px 0px #8bac0f;
+        }
+
+        #controls {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            pointer-events: auto;
+        }
+
+        .btn {
+            background: #8bac0f;
+            color: #0f380f;
+            border: 3px solid #0f380f;
+            padding: 10px;
+            font-size: 10px;
+            cursor: pointer;
+            text-align: center;
+            text-transform: uppercase;
+            box-shadow: 2px 2px 0px #0f380f;
+            transition: all 0.1s;
+        }
+
+        .btn:active {
+            box-shadow: 0px 0px 0px #0f380f;
+            transform: translate(2px, 2px);
+        }
+        
+        .btn:disabled {
+            background: #999;
+            color: #555;
+            border-color: #555;
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Glitch Animations */
+        @keyframes glitch-anim {
+            0% { clip-path: inset(10% 0 80% 0); transform: translate(-2px, 2px); }
+            20% { clip-path: inset(80% 0 5% 0); transform: translate(2px, -2px); }
+            40% { clip-path: inset(40% 0 20% 0); transform: translate(-2px, -2px); }
+            60% { clip-path: inset(90% 0 2% 0); transform: translate(2px, 2px); }
+            80% { clip-path: inset(20% 0 60% 0); transform: translate(-2px, 2px); }
+            100% { clip-path: inset(50% 0 30% 0); transform: translate(2px, -2px); }
+        }
+
+        .glitch-effect {
+            animation: glitch-anim 0.2s infinite;
+            filter: drop-shadow(3px 0px red) drop-shadow(-3px 0px blue);
+        }
+
+        .shake {
+            animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-2px, 0, 0); }
+            20%, 80% { transform: translate3d(3px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-5px, 0, 0); }
+            40%, 60% { transform: translate3d(5px, 0, 0); }
+        }
+
+        /* Utility */
+        .hidden { display: none !important; }
+        .flex-center { display: flex; justify-content: center; align-items: center; }
+    </style>
+</head>
+<body>
+
+    <div id="device">
+        <div class="text-xs text-center mb-2 text-[#0f380f] font-bold" style="opacity: 0.5;">NINTENDO C++</div>
+        <div id="screen-bezel">
+            <div id="screen-container">
+                <canvas id="gameCanvas" width="160" height="144"></canvas>
+                <div id="ui-layer">
+                    <div id="controls-overlay" class="absolute top-2 left-2 right-2 grid grid-cols-1 gap-2 hidden">
+                        <!-- Dynamic Buttons go here -->
+                    </div>
+                    <div id="dialogue-box" onclick="advanceDialogue()">
+                        <span id="dialogue-text"></span><span id="cursor" class="animate-pulse">_</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mt-4 flex justify-between items-center px-4">
+            <div class="w-16 h-16 bg-[#2a2a2a] rounded-full relative shadow-md">
+                <!-- D-PAD deco -->
+                <div class="absolute top-1/2 left-0 w-full h-4 bg-[#1a1a1a] -translate-y-1/2 rounded-sm"></div>
+                <div class="absolute left-1/2 top-0 h-full w-4 bg-[#1a1a1a] -translate-x-1/2 rounded-sm"></div>
+            </div>
+            <div class="flex gap-2 transform -rotate-12">
+                <div class="w-8 h-8 rounded-full bg-[#9b1a1a] border-b-4 border-[#5a0a0a] shadow-sm"></div>
+                <div class="w-8 h-8 rounded-full bg-[#9b1a1a] border-b-4 border-[#5a0a0a] shadow-sm mt-4"></div>
+            </div>
+        </div>
+        <!-- Actual interactive buttons mapped below screen for ease of use on modern devices -->
+        <div id="controls">
+            <button class="btn" id="btn-1" onclick="handleChoice(1)" disabled>1</button>
+            <button class="btn" id="btn-2" onclick="handleChoice(2)" disabled>2</button>
+            <button class="btn" id="btn-3" onclick="handleChoice(3)" disabled>3</button>
+            <button class="btn" id="btn-4" onclick="handleChoice(4)" disabled>4</button>
+        </div>
+    </div>
+
+<script>
+    // ============================================
+    // AUDIO ENGINE (Web Audio API Synthesizer)
+    // ============================================
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    function playTone(freq, type, duration, vol=0.1, slideFreq=null) {
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        if (slideFreq) {
+            osc.frequency.exponentialRampToValueAtTime(slideFreq, audioCtx.currentTime + duration);
+        }
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    }
+
+    const SFX = {
+        blip: () => playTone(440, 'square', 0.1, 0.05),
+        select: () => { playTone(600, 'square', 0.1, 0.05); setTimeout(()=>playTone(800, 'square', 0.15, 0.05), 50); },
+        hit: () => playTone(150, 'sawtooth', 0.3, 0.2, 50),
+        superEffective: () => { playTone(800, 'square', 0.1, 0.1, 1200); setTimeout(()=>playTone(1000, 'square', 0.2, 0.1, 1500), 100); },
+        notEffective: () => playTone(200, 'triangle', 0.3, 0.1, 150),
+        glitch: () => {
+            for(let i=0; i<5; i++) {
+                setTimeout(() => playTone(Math.random()*2000+200, ['sawtooth','square'][Math.floor(Math.random()*2)], Math.random()*0.1+0.05, 0.1), i*40);
+            }
+        },
+        faint: () => playTone(300, 'sawtooth', 0.8, 0.2, 50)
+    };
+
+    // ============================================
+    // GRAPHICS ENGINE (Canvas)
+    // ============================================
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    let currentSceneDraw = null;
+    let animationFrameId;
+
+    const COLORS = {
+        bg: '#e0f8d0',
+        dark: '#0f380f',
+        mid: '#8bac0f',
+        light: '#9bbc0f'
+    };
+
+    // Simple pixel sprites (1 means dark pixel, 0 means bg, 2 means mid)
+    const SPRITES = {
+        oak: [
+            "0011100",
+            "0122210",
+            "1212121",
+            "1222221",
+            "1121211",
+            "0111110",
+            "0010100"
+        ],
+        bulba: [ // Grass
+            "001100",
+            "012210",
+            "122221",
+            "112211",
+            "111111",
+            "010010"
+        ],
+        char: [ // Fire
+            "001000",
+            "012100",
+            "122101",
+            "122111",
+            "011110",
+            "010010"
+        ],
+        squirt: [ // Water
+            "01110",
+            "12221",
+            "12121",
+            "12221",
+            "01110",
+            "10001"
+        ],
+        enemy_fire: [
+            "10101",
+            "01210",
+            "12221",
+            "01210",
+            "10101"
+        ],
+        enemy_water: [
+            "00100",
+            "01210",
+            "12221",
+            "11211",
+            "01110"
+        ]
+    };
+
+    function drawSprite(spriteMap, x, y, scale=4, glitch=false) {
+        for (let row=0; row<spriteMap.length; row++) {
+            for (let col=0; col<spriteMap[row].length; col++) {
+                let val = spriteMap[row][col];
+                if (val !== '0') {
+                    if (glitch && Math.random() > 0.8) {
+                        ctx.fillStyle = Math.random() > 0.5 ? '#fff' : '#000';
+                        ctx.fillRect(x + col*scale + (Math.random()*4-2), y + row*scale + (Math.random()*4-2), scale, scale);
+                    } else {
+                        ctx.fillStyle = val === '1' ? COLORS.dark : COLORS.mid;
+                        ctx.fillRect(x + col*scale, y + row*scale, scale, scale);
+                    }
+                }
+            }
+        }
+    }
+
+    function spawnParticles(x, y, colorCode, count, type="normal") {
+        for(let i=0; i<count; i++) {
+            particles.push({
+                x: x, y: y,
+                vx: (Math.random() - 0.5) * 4,
+                vy: (Math.random() - 0.5) * 4 - (type==="fire"?2:0),
+                life: 1.0,
+                decay: Math.random() * 0.05 + 0.02,
+                color: colorCode,
+                size: Math.random() * 3 + 1,
+                type: type
+            });
+        }
+    }
+
+    function updateAndDrawParticles() {
+        for(let i=particles.length-1; i>=0; i--) {
+            let p = particles[i];
+            p.x += p.vx;
+            p.y += p.vy;
+            if(p.type === "fire") p.vy -= 0.1; // rise
+            if(p.type === "water") p.vy += 0.2; // fall gravity
+            p.life -= p.decay;
+            
+            if(p.life <= 0) {
+                particles.splice(i, 1);
+            } else {
+                ctx.fillStyle = p.color;
+                if(p.type === "glitch" && Math.random() > 0.5) {
+                    ctx.fillStyle = COLORS.dark;
+                    ctx.fillRect(p.x + Math.random()*10-5, p.y + Math.random()*10-5, p.size*2, p.size/2);
+                } else {
+                    ctx.fillRect(p.x, p.y, p.size, p.size);
+                }
+            }
+        }
+    }
+
+    function gameLoop() {
+        ctx.fillStyle = COLORS.bg;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        if (currentSceneDraw) currentSceneDraw();
+        updateAndDrawParticles();
+
+        animationFrameId = requestAnimationFrame(gameLoop);
+    }
+
+    // ============================================
+    // GAME LOGIC & STATE (Ported from C++)
+    // ============================================
+    let state = {
+        starterName: "",
+        starterElement: "",
+        starterPower: 0,
+        enemyName: "",
+        enemyElement: "",
+        enemyHP: 0,
+        currentDialogueQueue: [],
+        dialogueCallback: null
+    };
+
+    // UI Elements
+    const domDialogue = document.getElementById('dialogue-text');
+    const domBox = document.getElementById('dialogue-box');
+    const domScreen = document.getElementById('screen-container');
+    const btns = [
+        document.getElementById('btn-1'),
+        document.getElementById('btn-2'),
+        document.getElementById('btn-3'),
+        document.getElementById('btn-4')
+    ];
+
+    let isTyping = false;
+    let typeInterval;
+    let fullText = "";
+    let currentChoiceCallback = null;
+
+    function queueDialogue(texts, onComplete = null) {
+        state.currentDialogueQueue = texts;
+        state.dialogueCallback = onComplete;
+        advanceDialogue();
+    }
+
+    function advanceDialogue() {
+        if (isTyping) {
+            // Skip typing
+            clearInterval(typeInterval);
+            domDialogue.innerHTML = fullText.replace(/\n/g, '<br>');
+            isTyping = false;
+            return;
+        }
+
+        if (state.currentDialogueQueue.length > 0) {
+            fullText = state.currentDialogueQueue.shift();
+            domDialogue.innerHTML = "";
+            isTyping = true;
+            let i = 0;
+            SFX.blip();
+            typeInterval = setInterval(() => {
+                domDialogue.innerHTML += fullText.charAt(i) === '\n' ? '<br>' : fullText.charAt(i);
+                i++;
+                if(i % 3 === 0) SFX.blip(); // blip every few chars
+                if (i >= fullText.length) {
+                    clearInterval(typeInterval);
+                    isTyping = false;
+                }
+            }, 30);
+        } else {
+            if (state.dialogueCallback) {
+                let cb = state.dialogueCallback;
+                state.dialogueCallback = null;
+                cb();
+            }
+        }
+    }
+
+    function showChoices(options, callback) {
+        currentChoiceCallback = callback;
+        for(let i=0; i<4; i++) {
+            if (options[i]) {
+                btns[i].innerText = options[i];
+                btns[i].disabled = false;
+            } else {
+                btns[i].innerText = "-";
+                btns[i].disabled = true;
+            }
+        }
+    }
+
+    function hideChoices() {
+        btns.forEach(b => b.disabled = true);
+    }
+
+    function handleChoice(index) {
+        if(btns[index-1].disabled) return;
+        SFX.select();
+        hideChoices();
+        if(currentChoiceCallback) currentChoiceCallback(index);
+    }
+
+    function triggerShake() {
+        domScreen.classList.remove('shake');
+        void domScreen.offsetWidth; // trigger reflow
+        domScreen.classList.add('shake');
+    }
+
+    function triggerGlitch(durationMs) {
+        domScreen.classList.add('glitch-effect');
+        setTimeout(() => domScreen.classList.remove('glitch-effect'), durationMs);
+    }
+
+    // --- GAME SCENES ---
+
+    function start() {
+        gameLoop();
+        currentSceneDraw = () => {
+            drawSprite(SPRITES.oak, 60, 40, 6);
+        };
+
+        queueDialogue([
+            "=== POCKET MONSTERS: ===\nCSC 134 EDITION",
+            "PROF. OAK: Welcome to the world of programming!",
+            "Before you head out, you'll need a partner."
+        ], pickStarter);
+    }
+
+    function pickStarter() {
+        currentSceneDraw = () => {
+            drawSprite(SPRITES.bulba, 20, 50, 4);
+            drawSprite(SPRITES.char, 60, 50, 4);
+            drawSprite(SPRITES.squirt, 100, 50, 4);
+        };
+
+        queueDialogue(["Choose your starter:"], () => {
+            showChoices(["BULBASCODE", "CHARCOMPILE", "SQUIRTLOOP", "????"], (choice) => {
+                if (choice === 1) {
+                    state.starterName = "BULBASCODE"; state.starterElement = "Grass"; state.starterPower = 12;
+                    spawnParticles(30, 60, COLORS.dark, 30, "normal");
+                    queueDialogue(["BULBASCODE nudges your hand gently."], chooseRoute);
+                } else if (choice === 2) {
+                    state.starterName = "CHARCOMPILE"; state.starterElement = "Fire"; state.starterPower = 15;
+                    spawnParticles(70, 60, COLORS.dark, 30, "fire");
+                    queueDialogue(["CHARCOMPILE's tail flame flickers excitedly!"], chooseRoute);
+                } else if (choice === 3) {
+                    state.starterName = "SQUIRTLOOP"; state.starterElement = "Water"; state.starterPower = 10;
+                    spawnParticles(110, 60, COLORS.dark, 30, "water");
+                    queueDialogue(["SQUIRTLOOP squirts water at your face. Classic."], chooseRoute);
+                } else {
+                    state.starterName = "MISSINGNO"; state.starterElement = "Glitch"; state.starterPower = 99;
+                    SFX.glitch();
+                    triggerGlitch(1000);
+                    spawnParticles(70, 60, COLORS.dark, 50, "glitch");
+                    currentSceneDraw = () => { drawSprite(SPRITES.oak, 60, 40, 6, true); }; // Glitch Oak
+                    queueDialogue([
+                        "Uh... that wasn't one of the options.",
+                        "A glitchy Pokemon appears in your bag?!"
+                    ], chooseRoute);
+                }
+            });
+        });
+    }
+
+    function chooseRoute() {
+        currentSceneDraw = null; // Blank screen
+        queueDialogue([
+            "PROF. OAK: Excellent choice!\nNow explore Route 134!",
+            "The path splits into two routes:"
+        ], () => {
+            showChoices(["Ember Trail", "Tidal Cavern", "Wander Off", null], (choice) => {
+                if (choice === 1) {
+                    state.enemyName = "NULLPTR"; state.enemyElement = "Fire"; state.enemyHP = 20;
+                    queueDialogue([
+                        "You walk down Ember Trail...",
+                        "The air gets hot. Sparks float around you.",
+                        "A wild NULLPTR appeared! (Fire type)"
+                    ], encounterMenu);
+                } else if (choice === 2) {
+                    state.enemyName = "SEGFAULT"; state.enemyElement = "Water"; state.enemyHP = 18;
+                    queueDialogue([
+                        "You wade into Tidal Cavern...",
+                        "Puddles ripple beneath your feet.",
+                        "A wild SEGFAULT appeared! (Water type)"
+                    ], encounterMenu);
+                } else {
+                    queueDialogue([
+                        "You wander off the path and get lost.",
+                        "PROF. OAK: This isn't the time to use that!",
+                        "** GAME OVER **"
+                    ], null);
+                }
+            });
+        });
+    }
+
+    function encounterMenu() {
+        currentSceneDraw = () => {
+            // Draw Enemy top right
+            if (state.enemyElement === "Fire") drawSprite(SPRITES.enemy_fire, 100, 20, 6);
+            else drawSprite(SPRITES.enemy_water, 100, 20, 6);
+            
+            // Draw Player bottom left
+            if (state.starterElement === "Grass") drawSprite(SPRITES.bulba, 20, 80, 6);
+            else if (state.starterElement === "Fire") drawSprite(SPRITES.char, 20, 80, 6);
+            else if (state.starterElement === "Water") drawSprite(SPRITES.squirt, 20, 80, 6);
+            else {
+                // Glitch sprite
+                drawSprite(SPRITES.oak, 20, 80, 6, true);
+                spawnParticles(35, 95, COLORS.dark, 1, "glitch");
+            }
+        };
+
+        SFX.hit(); // Encounter noise
+        queueDialogue(["What do you do?"], () => {
+            showChoices(["Fight", "Run", null, null], (choice) => {
+                if (choice === 1) doFight();
+                else doRun();
+            });
+        });
+    }
+
+    function calculateMatchup(myE, enE) {
+        if (myE === "Fire" && enE === "Grass") { SFX.superEffective(); return {bonus: 10, msg: "It's super effective!"}; }
+        if (myE === "Grass" && enE === "Water") { SFX.superEffective(); return {bonus: 10, msg: "It's super effective!"}; }
+        if (myE === "Water" && enE === "Fire") { SFX.superEffective(); return {bonus: 10, msg: "It's super effective!"}; }
+        
+        if (myE === "Fire" && enE === "Water") { SFX.notEffective(); return {bonus: -5, msg: "It's not very effective..."}; }
+        if (myE === "Grass" && enE === "Fire") { SFX.notEffective(); return {bonus: -5, msg: "It's not very effective..."}; }
+        if (myE === "Water" && enE === "Grass") { SFX.notEffective(); return {bonus: -5, msg: "It's not very effective..."}; }
+        
+        if (myE === "Glitch") { SFX.glitch(); triggerGlitch(500); return {bonus: 50, msg: "MISSINGNO ignores the type chart!"}; }
+        
+        return {bonus: 0, msg: "It's a normal matchup."};
+    }
+
+    function doFight() {
+        queueDialogue([`Go, ${state.starterName}!\n(${state.starterElement} type)`, `${state.starterName} used TACKLE!`], () => {
+            // Animation tackle
+            let origDraw = currentSceneDraw;
+            let offset = 0;
+            let attacking = setInterval(() => {
+                offset += 4;
+                currentSceneDraw = () => {
+                    if (state.enemyElement === "Fire") drawSprite(SPRITES.enemy_fire, 100, 20, 6);
+                    else drawSprite(SPRITES.enemy_water, 100, 20, 6);
+                    
+                    let sprite = state.starterElement==="Grass"?SPRITES.bulba : state.starterElement==="Fire"?SPRITES.char : state.starterElement==="Water"?SPRITES.squirt : SPRITES.oak;
+                    drawSprite(sprite, 20 + offset, 80 - offset/2, 6, state.starterElement==="Glitch");
+                };
+                if(offset > 40) {
+                    clearInterval(attacking);
+                    currentSceneDraw = origDraw;
+                    triggerShake();
+                    spawnParticles(110, 30, COLORS.dark, 20, "normal");
+                    SFX.hit();
+                    resolveFight();
+                }
+            }, 30);
+        });
+    }
+
+    function resolveFight() {
+        let match = calculateMatchup(state.starterElement, state.enemyElement);
+        let totalDamage = state.starterPower + match.bonus;
+        let remHP = state.enemyHP - totalDamage;
+
+        let msgs = [
+            match.msg,
+            `Damage: ${state.starterPower} + ${match.bonus} = ${totalDamage}`,
+            `${state.enemyName} HP: ${state.enemyHP} -> ${remHP}`
+        ];
+
+        queueDialogue(msgs, () => {
+            if (remHP <= 0) {
+                SFX.faint();
+                currentSceneDraw = () => { // Enemy disappears
+                    let sprite = state.starterElement==="Grass"?SPRITES.bulba : state.starterElement==="Fire"?SPRITES.char : state.starterElement==="Water"?SPRITES.squirt : SPRITES.oak;
+                    drawSprite(sprite, 20, 80, 6, state.starterElement==="Glitch");
+                };
+                queueDialogue([
+                    `Wild ${state.enemyName} fainted!`,
+                    `${state.starterName} gained 50 EXP!`,
+                    "[GOOD END - Bug Defeated]\n** THANKS FOR PLAYING **"
+                ], () => showChoices(["Restart", null, null, null], () => location.reload()));
+            } else {
+                triggerShake();
+                SFX.hit();
+                queueDialogue([
+                    `Wild ${state.enemyName} survived with ${remHP} HP!`,
+                    `${state.enemyName} used CRASH!\nYou blacked out!`,
+                    "[BAD END - Need More Training]\n** THANKS FOR PLAYING **"
+                ], () => showChoices(["Restart", null, null, null], () => location.reload()));
+            }
+        });
+    }
+
+    function doRun() {
+        let msg2 = state.starterPower >= 15 ? 
+            `${state.starterName} looks disappointed. It wanted to fight!` : 
+            `${state.starterName} seems relieved, honestly.`;
+
+        queueDialogue([
+            `You grab ${state.starterName} and bolt!`,
+            msg2,
+            "Got away safely!",
+            "PROF. OAK: The bugs will still be there tomorrow.",
+            "[OKAY END - Live to Code Another Day]\n** THANKS FOR PLAYING **"
+        ], () => showChoices(["Restart", null, null, null], () => location.reload()));
+    }
+
+    // Start engine
+    window.onload = () => {
+        // Initial setup prompt to require a user click (for Audio Context policy)
+        currentSceneDraw = () => {
+            ctx.fillStyle = COLORS.dark;
+            ctx.font = '10px "Press Start 2P"';
+            ctx.fillText("CLICK TO START", 20, 70);
+        };
+        domBox.style.pointerEvents = 'none';
+        
+        document.body.addEventListener('click', function initPlay() {
+            document.body.removeEventListener('click', initPlay);
+            domBox.style.pointerEvents = 'auto';
+            audioCtx.resume();
+            start();
+        });
+    };
+
+</script>
+</body>
+</html>

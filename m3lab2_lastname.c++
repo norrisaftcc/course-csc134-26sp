@@ -18,16 +18,16 @@ int main() {
     if (num_grade >= 90) {
         letter_grade = "A";
     }
-    else if (num_grade >= 80) {
+    if (num_grade < 90 && num_grade >= 80) {
         letter_grade = "B";
     }
-    else if (num_grade >= 70) {
+    if (num_grade < 80 && num_grade >= 70) {
         letter_grade = "C";
     }
-    else if (num_grade >= 60) {
+    if (num_grade < 70 && num_grade >= 60) {
         letter_grade = "D";
     }
-    else {
+    if (num_grade < 60) {
         // less than 60
         letter_grade = "F";
     }

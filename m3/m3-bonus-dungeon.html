@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dungeon Escape - First Person</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        
+        body {
+            background-color: #0a0a0a;
+            color: #e0e0e0;
+            font-family: 'Press Start 2P', cursive;
+            image-rendering: pixelated;
+        }
+
+        .game-container {
+            max-width: 900px;
+            margin: 2rem auto;
+        }
+
+        .viewport {
+            aspect-ratio: 16 / 9;
+            background: #000;
+            position: relative;
+            overflow: hidden;
+            border: 6px solid #222;
+            box-shadow: inset 0 0 100px #000;
+        }
+
+        /* 3D Hallway Effect */
+        .floor {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 40%;
+            background: linear-gradient(to bottom, #111 0%, #222 100%);
+            clip-path: polygon(0 100%, 15% 0, 85% 0, 100% 100%);
+            left: 0;
+            z-index: 1;
+        }
+
+        .ceiling {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            height: 30%;
+            background: linear-gradient(to top, #080808 0%, #1a1a1a 100%);
+            clip-path: polygon(0 0, 15% 100%, 85% 100%, 100% 0%);
+            left: 0;
+            z-index: 1;
+        }
+
+        .wall-left {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 15%;
+            background: linear-gradient(to right, #1a1a1a, #0a0a0a);
+            z-index: 1;
+        }
+
+        .wall-right {
+            position: absolute;
+            right: 0;
+            top: 0;
+            height: 100%;
+            width: 15%;
+            background: linear-gradient(to left, #1a1a1a, #0a0a0a);
+            z-index: 1;
+        }
+
+        .log-container {
+            height: 160px;
+            overflow-y: auto;
+            background: #050505;
+            border: 2px solid #333;
+            font-size: 0.7rem;
+            line-height: 1.6;
+            padding: 1rem;
+            scrollbar-width: thin;
+            scrollbar-color: #444 #000;
+        }
+
+        .btn-action {
+            background: #1a1a1a;
+            border: 2px solid #333;
+            padding: 12px;
+            font-size: 0.6rem;
+            transition: all 0.15s;
+            text-align: left;
+            width: 100%;
+            margin-bottom: 8px;
+            color: #aaa;
+            text-transform: uppercase;
+        }
+
+        .btn-action:hover:not(:disabled) {
+            background: #b45309; /* yellow-700 */
+            border-color: #fbbf24;
+            color: #fff;
+            transform: translateX(4px);
+        }
+
+        .btn-action:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .shake {
+            animation: shake 0.25s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-2px, 0, 0); }
+            20%, 80% { transform: translate3d(4px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+            40%, 60% { transform: translate3d(6px, 0, 0); }
+        }
+
+        #graphic-container svg {
+            filter: drop-shadow(0 0 10px rgba(0,0,0,0.8));
+            max-height: 70%;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="game-container">
+        <!-- Header Info -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+            <div>
+                <h1 class="text-2xl text-yellow-600 mb-1">DUNGEON ESCAPE</h1>
+                <p class="text-[0.5rem] text-gray-600 tracking-[0.3em]">VECTOR SURVIVAL SYSTEM v2.1</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="text-right">
+                    <div class="text-[0.5rem] mb-1 text-gray-500">VITALS</div>
+                    <div class="w-48 h-3 bg-gray-900 border border-gray-700 p-[2px]">
+                        <div id="hp-bar" class="h-full bg-red-700 transition-all duration-500" style="width: 100%"></div>
+                    </div>
+                </div>
+                <div id="hp-text" class="text-xs text-red-500 min-w-[60px]">100%</div>
+            </div>
+        </div>
+
+        <!-- Viewport -->
+        <div id="viewport" class="viewport mb-6 flex items-center justify-center">
+            <div class="ceiling"></div>
+            <div class="floor"></div>
+            <div class="wall-left"></div>
+            <div class="wall-right"></div>
+            
+            <div id="scene-content" class="text-center relative z-10 w-full flex flex-col items-center justify-center px-20">
+                <div id="graphic-container" class="w-full flex justify-center mb-4 min-h-[180px]">
+                    <!-- SVGs injected here -->
+                </div>
+                <div id="scene-description" class="text-[0.65rem] leading-relaxed text-gray-400 bg-black/60 p-3 border-l-2 border-yellow-800">
+                    Initializing...
+                </div>
+            </div>
+
+            <!-- Boss HP Overlay -->
+            <div id="boss-ui" class="absolute top-8 left-1/2 -translate-x-1/2 hidden w-72 text-center z-20">
+                <div class="text-[0.5rem] mb-2 text-red-600 font-bold tracking-widest">TROLL GUARDIAN</div>
+                <div class="h-1 bg-gray-900 border border-red-900/50">
+                    <div id="boss-hp-bar" class="h-full bg-red-600" style="width: 100%"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Action Panel -->
+            <div class="lg:col-span-7 flex flex-col">
+                <div id="action-title" class="text-[0.5rem] text-yellow-700 mb-3 tracking-widest uppercase font-bold">Available Maneuvers</div>
+                <div id="action-buttons">
+                    <!-- Buttons injected by JS -->
+                </div>
+            </div>
+
+            <!-- Log Panel -->
+            <div class="lg:col-span-5">
+                <div class="text-[0.5rem] text-blue-800 mb-3 tracking-widest uppercase font-bold">System Log</div>
+                <div id="log" class="log-container">
+                    <div class="text-gray-700 italic">Awakening sequence initiated...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weapon Icon Overlay -->
+        <div id="weapon-indicator" class="fixed bottom-10 right-10 p-4 bg-black/90 border border-gray-800 hidden z-50">
+             <div class="text-[0.4rem] text-gray-600 mb-2 text-center uppercase">Equipped</div>
+             <div id="weapon-icon" class="text-3xl text-center">❓</div>
+        </div>
+    </div>
+
+    <script>
+        // SVG Library
+        const Graphics = {
+            Door: `
+                <svg viewBox="0 0 100 100" class="w-32 h-32">
+                    <rect x="25" y="10" width="50" height="85" fill="#3e2723" stroke="#212121" stroke-width="2"/>
+                    <rect x="30" y="15" width="40" height="75" fill="none" stroke="#2b1d1a" stroke-width="1"/>
+                    <circle cx="68" cy="55" r="3" fill="#ffd700" />
+                    <path d="M30 30h40 M30 50h40 M30 70h40" stroke="#212121" stroke-width="0.5"/>
+                    <rect x="22" y="5" width="56" height="5" fill="#212121"/>
+                </svg>
+            `,
+            Rats: `
+                <svg viewBox="0 0 200 100" class="w-64 h-32">
+                    <!-- Rat 1 -->
+                    <g transform="translate(40, 50)">
+                        <ellipse cx="0" cy="0" rx="25" ry="12" fill="#424242" />
+                        <path d="M-25 0 Q-35 -15 -15 -10" stroke="#424242" fill="none" stroke-width="2"/>
+                        <circle cx="18" cy="-5" r="2.5" fill="#ff0000" />
+                        <path d="M22 0 L35 5 L22 10 Z" fill="#424242" />
+                    </g>
+                    <!-- Rat 2 -->
+                    <g transform="translate(100, 65)">
+                        <ellipse cx="0" cy="0" rx="20" ry="10" fill="#333" />
+                        <circle cx="15" cy="-4" r="2" fill="#ff0000" />
+                        <path d="M18 0 L28 4 L18 8 Z" fill="#333" />
+                    </g>
+                    <!-- Rat 3 -->
+                    <g transform="translate(150, 55)">
+                        <ellipse cx="0" cy="0" rx="22" ry="11" fill="#444" />
+                        <circle cx="16" cy="-4" r="2.5" fill="#ff0000" />
+                        <path d="M20 0 L30 4 L20 8 Z" fill="#444" />
+                    </g>
+                </svg>
+            `,
+            Potion: `
+                <svg viewBox="0 0 100 100" class="w-32 h-32">
+                    <path d="M40 20 L60 20 L60 40 L80 80 L20 80 L40 40 Z" fill="rgba(66, 165, 245, 0.4)" stroke="#fff" stroke-width="2"/>
+                    <path d="M30 60 L70 60 L75 80 L25 80 Z" fill="#1976d2">
+                        <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite" />
+                    </path>
+                    <rect x="42" y="15" width="16" height="5" fill="#5d4037"/>
+                </svg>
+            `,
+            Guard: `
+                <svg viewBox="0 0 100 100" class="w-32 h-32">
+                    <path d="M30 90 L30 40 Q30 10 50 10 Q70 10 70 40 L70 90" fill="#78909c" stroke="#37474f" stroke-width="2"/>
+                    <rect x="35" y="35" width="30" height="5" fill="#263238" />
+                    <path d="M50 10 L50 0 L60 5 Z" fill="#c62828" />
+                    <rect x="48" y="40" width="4" height="20" fill="#263238" />
+                </svg>
+            `,
+            Troll: `
+                <svg viewBox="0 0 200 200" class="w-64 h-64">
+                    <!-- Body -->
+                    <path d="M40 180 Q20 100 60 60 Q100 40 140 60 Q180 100 160 180" fill="#4e342e" stroke="#212121" stroke-width="3"/>
+                    <!-- Shoulders/Head -->
+                    <circle cx="100" cy="60" r="40" fill="#4e342e" stroke="#212121" stroke-width="2"/>
+                    <!-- Eyes -->
+                    <circle cx="85" cy="55" r="5" fill="#fff" />
+                    <circle cx="85" cy="55" r="2" fill="#000" />
+                    <circle cx="115" cy="55" r="5" fill="#fff" />
+                    <circle cx="115" cy="55" r="2" fill="#000" />
+                    <!-- Mouth/Tusks -->
+                    <path d="M80 80 Q100 90 120 80" stroke="#212121" fill="none" stroke-width="2"/>
+                    <path d="M85 80 L80 70 L90 75 Z" fill="#f5f5f5" />
+                    <path d="M115 80 L120 70 L110 75 Z" fill="#f5f5f5" />
+                    <!-- Club -->
+                    <path d="M150 140 L180 60 L195 70 L165 150 Z" fill="#3e2723" stroke="#212121"/>
+                    <circle cx="185" cy="65" r="10" fill="#3e2723" />
+                </svg>
+            `,
+            Exit: `
+                <svg viewBox="0 0 100 100" class="w-48 h-48">
+                    <rect x="0" y="0" width="100" height="100" fill="#ffecb3" opacity="0.2">
+                        <animate attributeName="opacity" values="0.1;0.4;0.1" dur="3s" repeatCount="indefinite" />
+                    </rect>
+                    <path d="M20 100 L20 20 Q50 0 80 20 L80 100" fill="none" stroke="#ffca28" stroke-width="4" stroke-dasharray="4"/>
+                </svg>
+            `
+        };
+
+        // Game State
+        let state = {
+            health: 100,
+            weapon: 0,
+            score: 0,
+            currentRoom: 'start',
+            trollHP: 60,
+            isProcessing: false
+        };
+
+        const weapons = {
+            1: { name: "Sword", emoji: "⚔️", bonus: 0 },
+            2: { name: "Bow", emoji: "🏹", bonus: 100 },
+            3: { name: "Magic", emoji: "✨", bonus: 200 }
+        };
+
+        const logEl = document.getElementById('log');
+        const actionButtonsEl = document.getElementById('action-buttons');
+        const graphicContainer = document.getElementById('graphic-container');
+        const sceneDescEl = document.getElementById('scene-description');
+        const hpBarEl = document.getElementById('hp-bar');
+        const hpTextEl = document.getElementById('hp-text');
+        const viewportEl = document.getElementById('viewport');
+        const weaponIndicator = document.getElementById('weapon-indicator');
+        const weaponIcon = document.getElementById('weapon-icon');
+        const bossUI = document.getElementById('boss-ui');
+        const bossHPBar = document.getElementById('boss-hp-bar');
+
+        window.onload = () => {
+            initStart();
+        };
+
+        function addLog(msg, color = 'text-gray-400') {
+            const entry = document.createElement('div');
+            entry.className = `mb-1 ${color}`;
+            entry.innerText = `> ${msg}`;
+            logEl.prepend(entry);
+        }
+
+        function updateUI() {
+            const hpPercent = Math.max(0, state.health);
+            hpBarEl.style.width = `${hpPercent}%`;
+            hpTextEl.innerText = `${state.health}%`;
+            
+            if (state.health <= 30) {
+                hpBarEl.classList.replace('bg-red-700', 'bg-red-500');
+                hpTextEl.classList.add('animate-pulse');
+            }
+
+            if (state.weapon > 0) {
+                weaponIndicator.classList.remove('hidden');
+                weaponIcon.innerText = weapons[state.weapon].emoji;
+            }
+
+            if (state.health <= 0 && state.currentRoom !== 'end') {
+                gameOver();
+            }
+        }
+
+        function clearActions() {
+            actionButtonsEl.innerHTML = '';
+        }
+
+        function createButton(text, onClick, disabled = false) {
+            const btn = document.createElement('button');
+            btn.className = 'btn-action';
+            btn.innerText = text;
+            btn.disabled = disabled || state.isProcessing;
+            btn.onclick = onClick;
+            actionButtonsEl.appendChild(btn);
+        }
+
+        function setGraphic(key) {
+            graphicContainer.innerHTML = Graphics[key] || '';
+        }
+
+        function screenShake() {
+            viewportEl.classList.add('shake');
+            setTimeout(() => viewportEl.classList.remove('shake'), 250);
+        }
+
+        // --- GAME FLOW ---
+
+        function initStart() {
+            state.currentRoom = 'start';
+            setGraphic('Door');
+            sceneDescEl.innerText = "You awaken in a damp, stone-walled cell. The air is cold. Your survival depends on the weapon you secure now.";
+            
+            clearActions();
+            createButton("1. TAKE OLD SWORD", () => chooseWeapon(1));
+            createButton("2. TAKE HUNTER'S BOW", () => chooseWeapon(2));
+            createButton("3. HARNESS ARCANE WILL", () => chooseWeapon(3));
+            updateUI();
+        }
+
+        function chooseWeapon(w) {
+            state.weapon = w;
+            const wData = weapons[w];
+            addLog(`Weapon synchronized: ${wData.name.toUpperCase()}`, 'text-yellow-600');
+            enterRoom1();
+        }
+
+        function enterRoom1() {
+            state.currentRoom = 'room1';
+            updateUI();
+            setGraphic('Rats');
+            sceneDescEl.innerText = "ROOM 1: THE RAT DEN. A cluster of giant, red-eyed vermin scurries in the center of the passage.";
+            
+            clearActions();
+            createButton("Fight them directly", () => resolveRoom1(1));
+            createButton("Attempt stealth bypass", () => resolveRoom1(2));
+            
+            if (state.weapon === 2) createButton("[BOW] Ranged precision", () => resolveRoom1(3));
+            if (state.weapon === 3) createButton("[MAGIC] Arcane Flash", () => resolveRoom1(3));
+        }
+
+        function resolveRoom1(choice) {
+            const roll = Math.floor(Math.random() * 6) + 1;
+            let damage = 0;
+
+            if (choice === 1) {
+                if (roll >= 3) {
+                    addLog("Brute force prevails. Rats scattered.");
+                    damage = 15;
+                } else {
+                    addLog("Ambushed! Swarmed by the pack.", "text-red-600");
+                    damage = 30;
+                }
+            } else if (choice === 2) {
+                if (roll >= 4) {
+                    addLog("Silent movement successful.", "text-green-600");
+                } else {
+                    addLog("Detected! The pack bites at your heels.", "text-red-600");
+                    damage = 20;
+                }
+            } else if (choice === 3) {
+                if (state.weapon === 2) {
+                    addLog("Arrows find their marks. Safe distance maintained.");
+                    damage = 5;
+                } else if (state.weapon === 3) {
+                    addLog("Luminosity overwhelms their senses. Perfect escape.", "text-green-600");
+                }
+            }
+
+            if (damage > 0) {
+                state.health -= damage;
+                screenShake();
+                addLog(`Physical integrity compromised: -${damage}%`, "text-red-500");
+            }
+            
+            updateUI();
+            if (state.health > 0) setTimeout(checkPotionEvent, 1200);
+        }
+
+        function checkPotionEvent() {
+            if (Math.random() > 0.5) {
+                state.currentRoom = 'potion';
+                setGraphic('Potion');
+                sceneDescEl.innerText = "SENSORS DETECT: Alchemical substance identified on a side alcove. Potentially restorative.";
+                clearActions();
+                createButton("Ingest Substance", () => {
+                    const heal = Math.floor(Math.random() * 21) + 10;
+                    state.health = Math.min(100, state.health + heal);
+                    addLog(`Cellular repair initiated. +${heal}% HP`, "text-blue-500");
+                    enterRoom2();
+                });
+                createButton("Bypass Substance", () => enterRoom2());
+            } else {
+                enterRoom2();
+            }
+        }
+
+        function enterRoom2() {
+            state.currentRoom = 'room2';
+            updateUI();
+            setGraphic('Guard');
+            sceneDescEl.innerText = "ROOM 2: THE ARMORY. A armored sentry blocks the path, seemingly unconscious. The key hangs loosely.";
+            
+            clearActions();
+            createButton("Sneak for the key", () => resolveRoom2(1));
+            createButton("Pre-emptive strike", () => resolveRoom2(2));
+            
+            if (state.weapon === 1) createButton("[SWORD] Tactical disarm", () => resolveRoom2(3));
+            if (state.weapon === 3) createButton("[MAGIC] Somnolence charm", () => resolveRoom2(3));
+        }
+
+        function resolveRoom2(choice) {
+            const roll = Math.floor(Math.random() * 6) + 1;
+            let damage = 0;
+
+            if (choice === 1) {
+                if (roll >= 3) {
+                    addLog("Key acquired. Sentry remains unaware.", "text-green-600");
+                } else {
+                    addLog("Sentry alert! Heavy impact sustained.", "text-red-600");
+                    damage = 25;
+                }
+            } else if (choice === 2) {
+                addLog("Combat victory achieved through attrition.");
+                damage = 30;
+            } else if (choice === 3) {
+                if (state.weapon === 1) addLog("Superior blade handling. Sentry neutralized.");
+                else if (state.weapon === 3) addLog("Magical stasis achieved. Access granted.", "text-green-600");
+            }
+
+            if (damage > 0) {
+                state.health -= damage;
+                screenShake();
+                addLog(`Impact detected: -${damage}%`, "text-red-500");
+            }
+            
+            updateUI();
+            if (state.health > 0) setTimeout(enterRoom3, 1200);
+        }
+
+        function enterRoom3() {
+            state.currentRoom = 'room3';
+            updateUI();
+            setGraphic('Troll');
+            sceneDescEl.innerText = "FINAL OBSTACLE: THE TROLL GATE. A massive biological threat guards the iron exit.";
+            
+            clearActions();
+            createButton("Initiate Full Combat", () => startBossFight());
+            createButton("Search for structural weakness", () => resolveRoom3(2));
+            
+            if (state.weapon === 2) createButton("[BOW] Target optic sensors", () => resolveRoom3(3));
+            if (state.weapon === 3) createButton("[MAGIC] Structural collapse", () => resolveRoom3(3));
+        }
+
+        function resolveRoom3(choice) {
+            if (choice === 2) {
+                if (Math.random() > 0.6) {
+                    addLog("Ventilation shaft discovered. Bypassing threat.", "text-green-600");
+                    victory();
+                } else {
+                    addLog("Alternative route blocked! Engagement mandatory.", "text-red-500");
+                    state.health -= 30;
+                    screenShake();
+                    startBossFight();
+                }
+            } else if (choice === 3) {
+                if (state.weapon === 2) addLog("Precision strike. Target eliminated instantly.");
+                else if (state.weapon === 3) addLog("Molecular bonds shattered. Ceiling collapsed.");
+                victory();
+            }
+        }
+
+        function startBossFight() {
+            state.currentRoom = 'fight';
+            state.isProcessing = true;
+            bossUI.classList.remove('hidden');
+            sceneDescEl.innerText = "THREAT ENGAGED: TROLL GUARDIAN. High-intensity combat sequence active.";
+            clearActions();
+            bossHPBar.style.width = '100%';
+            
+            combatRound();
+        }
+
+        function combatRound() {
+            if (state.health <= 0 || state.trollHP <= 0) {
+                state.isProcessing = false;
+                if (state.health > 0) victory();
+                return;
+            }
+
+            updateUI();
+            
+            // Player Attack
+            let pDmg = 0;
+            if (state.weapon === 1) pDmg = Math.floor(Math.random() * 11) + 10;
+            else if (state.weapon === 2) pDmg = Math.floor(Math.random() * 6) + 12;
+            else pDmg = Math.floor(Math.random() * 21) + 5;
+
+            state.trollHP -= pDmg;
+            bossHPBar.style.width = `${Math.max(0, (state.trollHP / 60) * 100)}%`;
+            addLog(`Offensive output: ${pDmg} damage.`, "text-blue-500");
+
+            if (state.trollHP <= 0) {
+                addLog("Target neutralized.", "text-yellow-600 font-bold");
+                setTimeout(victory, 1000);
+                return;
+            }
+
+            // Troll Attack
+            setTimeout(() => {
+                let tDmg = Math.floor(Math.random() * 16) + 10;
+                state.health -= tDmg;
+                screenShake();
+                updateUI();
+                addLog(`Incoming trauma: -${tDmg}% HP`, "text-red-700");
+
+                if (state.health > 0) {
+                    setTimeout(combatRound, 1200);
+                }
+            }, 1000);
+        }
+
+        function victory() {
+            state.currentRoom = 'end';
+            bossUI.classList.add('hidden');
+            setGraphic('Exit');
+            sceneDescEl.innerText = "ESCAPE PROTOCOL COMPLETE. Exterior environment reached.";
+            
+            state.score = (state.health * 10) + (weapons[state.weapon].bonus);
+            
+            clearActions();
+            createButton("RE-INITIATE SEQUENCE", () => location.reload());
+
+            addLog(`MISSION SUCCESS. SCORE: ${state.score}`, "text-yellow-600 font-bold");
+            
+            let breakdown = `<div class='text-left space-y-2 mt-4'>
+                <p>SURVIVAL BONUS: ${state.health * 10}</p>
+                <p>LOADOUT MULTIPLIER: +${weapons[state.weapon].bonus}</p>
+                <p class='text-yellow-500'>FINAL RATING: ${state.score}</p>
+            </div>`;
+            sceneDescEl.innerHTML = breakdown;
+        }
+
+        function gameOver() {
+            state.currentRoom = 'end';
+            bossUI.classList.add('hidden');
+            graphicContainer.innerHTML = `
+                <svg viewBox="0 0 100 100" class="w-32 h-32">
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="#7f1d1d" stroke-width="2" />
+                    <path d="M35 35 L65 65 M65 35 L35 65" stroke="#7f1d1d" stroke-width="4" />
+                </svg>
+            `;
+            sceneDescEl.innerText = "CRITICAL FAILURE. Vital signs terminated. The dungeon remains your tomb.";
+            clearActions();
+            createButton("RETRY SIMULATION", () => location.reload());
+            addLog("SYSTEM OFFLINE", "text-red-900 font-bold");
+        }
+
+    </script>
+</body>
+</html>

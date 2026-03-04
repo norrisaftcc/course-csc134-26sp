@@ -1,0 +1,124 @@
+:: StoryTitle
+The Phantom Food Delivery
+
+:: StoryData
+{
+ "ifid": "A1B2C3D4-E5F6-4A7B-8C9D-E0F1A2B3C4D5",
+ "format": "Harlowe",
+ "format-version": "3.3.0",
+ "start": "StartGame"
+}
+
+:: StartGame
+(set: $rating to 5.0)
+(set: $tips to 0)
+(set: $driverName to "Steve")
+
+# THE PHANTOM FOOD DELIVERY
+
+You are a Driver for **'Ecto-Eats'**. It is currently 11:59 PM, and the moon is obscured by heavy, greenish clouds.
+
+A notification pings on your phone:
+> **New Order:** 1x 'Soul Burger'
+> **Destination:** The Old Manor (End of Blackwood Lane)
+> **Notes:** "DO NOT RING THE BELL. LEAVE IT, OR ELSE."
+
+* [[Drive to the Manor immediately->Arrival]]
+* [[Peek inside the bag first->Peek]]
+* [[Cancel the order. Too spooky.->EndingCancel]]
+
+
+:: Peek
+(set: $rating to it - 0.2)
+You pull over under a flickering streetlight and peel back the staple on the brown paper bag. 
+
+Inside, the burger bun is a deep charcoal black, and the "meat" is glowing with an eerie, pulsing purple light. A faint sound emanates from the bag—a wet, gravelly whisper.
+
+*"$driverName... $driverName..."* (Your name isn't $driverName, which somehow makes it even more unsettling.)
+
+* [[Close the bag and keep driving. I need the money.->Arrival]]
+* [[Eat the burger. It smells like... purple?->EndingGhost]]
+
+
+:: Arrival
+--------------------------------------------------------
+The iron gates of the **Old Manor** groan open as your car approaches, though no one is there to pull them. The house is a jagged silhouette against the sky, and the air feels ten degrees colder here.
+
+The path to the front door is overgrown with thorns that look suspiciously like reaching fingers.
+
+* [[Walk up to the front door like a pro.->FrontDoor]]
+* [[Leave the food at the gate and bolt.->EndingGateDrop]]
+
+
+:: FrontDoor
+--------------------------------------------------------
+You step onto the porch. Each floorboard shrieks under your weight. Before you can even reach for the "Leave at Door" photo, the heavy oak door swings inward with a blast of freezing wind.
+
+A **spectral figure**—translucent, weeping, and wearing a tattered 1920s tuxedo—floats in the foyer. His jaw drops open, revealing a bottomless void. He looks... famished.
+
+* [[Throw the bag at the ghost and run!->EndingLawnOrnament]]
+* [[Politely say: "Order for Mr. Ghost?"->EndingRich]]
+
+
+:: EndingCancel
+### [ENDING: THE COWARD]
+
+(set: $rating to 4.9)
+You hit the 'Cancel' button and pull a U-turn so fast your tires smoke. 
+
+Your rating drops to **$rating stars**. You go home and sleep soundly, haunted only by the crushing weight of student loans and the feeling that you missed out on something... big.
+
+**GAME OVER.**
+
+
+:: EndingGhost
+### [ENDING: ECTOPLASMIC SNACK]
+
+You take a massive bite of the Soul Burger. It doesn't taste like beef; it tastes like **static electricity, old memories, and regret.**
+
+Your body begins to shimmer and fade. By the time you finish the fries, you are completely transparent. You look down at your hands just in time to see them turn into mist. 
+
+You are now a permanent employee of Ecto-Eats. Your shift never ends.
+
+**GAME OVER.**
+
+
+:: EndingLawnOrnament
+### [ENDING: LAWN DECOR]
+
+In a panic, you hurl the bag. The glowing burger flies out, trailing purple slime, and smacks the ghost squarely in his translucent forehead.
+
+The ghost stops weeping. His expression shifts from hunger to cold, calculated annoyance. He snaps his fingers.
+
+You feel your skin hardening into cold stone. You are now a **permanent lawn ornament**, positioned near the thorns to warn other delivery drivers about the importance of customer service.
+
+**GAME OVER.**
+
+
+:: EndingGateDrop
+### [ENDING: BARE MINIMUM]
+
+(set: $tips to 2)
+You drop the bag by the gate, snap a blurry photo, and peel out of the driveway. In your rearview mirror, you see a shadow float down from the manor's balcony and retrieve the bag.
+
+The app pings.
+**Tip Received:** $ $tips.00.
+
+You survived the night, but you'll never know what was inside that house.
+
+**GAME OVER.**
+
+
+:: EndingRich
+### [ENDING: EMPLOYEE OF THE MONTH]
+
+(set: $tips to 5000)
+The ghost stops floating. He looks at the bag, then back at you. A terrifying, skeletal smile spreads across his face.
+
+"'Thank you,'" he rasps, his voice sounding like dry leaves on pavement. "'Hard to get service out here since the... incident of '24.'"
+
+He reaches into his spectral coat and hands you a heavy, solid gold doubloon. 
+"Keep the change, kid."
+
+**YOU WIN!**
+Your rating stays at $rating stars, and you walk away with **$ $tips** in gold.

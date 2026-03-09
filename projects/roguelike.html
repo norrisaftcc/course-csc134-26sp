@@ -1,0 +1,191 @@
+import React, { useState, useEffect, useCallback } from 'react';
+
+// --- CONSTANTS ---
+const MAP_HEIGHT = 15;
+const MAP_WIDTH = 30;
+const WALL = '#';
+const FLOOR = '.';
+const PLAYER = '@';
+const MONSTER = 'M';
+
+const App = () => {
+  // --- STATE ---
+  const [gameState, setGameState] = useState('INTRO'); // INTRO, PLAYING, GAMEOVER, WIN
+  const [player, setPlayer] = useState({ x: 1, y: 1, hp: 100, maxHp: 100, attack: 10 });
+  const [enemy, setEnemy] = useState({ x: 10, y: 5, hp: 30, alive: true, attack: 5 });
+  const [log, setLog] = useState(['Welcome to the Grid. Use WASD or Arrows to move.']);
+  const [map, setMap] = useState([]);
+
+  // --- INITIALIZATION ---
+  useEffect(() => {
+    const newMap = [];
+    for (let i = 0; i < MAP_HEIGHT; i++) {
+      const row = [];
+      for (let j = 0; j < MAP_WIDTH; j++) {
+        if (i === 0 || i === MAP_HEIGHT - 1 || j === 0 || j === MAP_WIDTH - 1) {
+          row.push(WALL);
+        } else {
+          row.push(FLOOR);
+        }
+      }
+      newMap.push(row);
+    }
+    setMap(newMap);
+  }, []);
+
+  // --- UTILITIES ---
+  const addLog = (msg) => {
+    setLog(prev => [msg, ...prev].slice(0, 5));
+  };
+
+  const startLevel = () => {
+    setGameState('PLAYING');
+    addLog("You have entered the dungeon.");
+  };
+
+  // --- GAME LOGIC ---
+  const handleMove = useCallback((dx, dy) => {
+    if (gameState !== 'PLAYING') return;
+
+    const nextX = player.x + dx;
+    const nextY = player.y + dy;
+
+    // Boundary/Wall Check
+    if (map[nextY][nextX] === WALL) {
+      addLog("You bump into a wall.");
+      return;
+    }
+
+    // Combat Check
+    if (enemy.alive && nextX === enemy.x && nextY === enemy.y) {
+      // Player attacks enemy
+      const newEnemyHp = enemy.hp - player.attack;
+      addLog(`You hit the monster for ${player.attack} damage!`);
+      
+      if (newEnemyHp <= 0) {
+        setEnemy(prev => ({ ...prev, hp: 0, alive: false }));
+        addLog("The monster collapses!");
+      } else {
+        // Enemy counter-attacks
+        const newPlayerHp = player.hp - enemy.attack;
+        setEnemy(prev => ({ ...prev, hp: newEnemyHp }));
+        setPlayer(prev => ({ ...prev, hp: Math.max(0, newPlayerHp) }));
+        addLog(`The monster hits you back for ${enemy.attack}!`);
+        
+        if (newPlayerHp <= 0) {
+          setGameState('GAMEOVER');
+        }
+      }
+      return;
+    }
+
+    // Move Player
+    setPlayer(prev => ({ ...prev, x: nextX, y: nextY }));
+  }, [player, enemy, map, gameState]);
+
+  // --- INPUT HANDLING ---
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      switch (e.key.toLowerCase()) {
+        case 'w': case 'arrowup': handleMove(0, -1); break;
+        case 's': case 'arrowdown': handleMove(0, 1); break;
+        case 'a': case 'arrowleft': handleMove(-1, 0); break;
+        case 'd': case 'arrowright': handleMove(1, 0); break;
+        case 'enter': if (gameState === 'INTRO') startLevel(); break;
+        default: break;
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [handleMove, gameState]);
+
+  // --- RENDERING HELPER ---
+  const renderMap = () => {
+    const displayGrid = map.map(row => [...row]);
+    if (enemy.alive) {
+      displayGrid[enemy.y][enemy.x] = MONSTER;
+    }
+    displayGrid[player.y][player.x] = PLAYER;
+
+    return displayGrid.map(row => row.join('')).join('\n');
+  };
+
+  return (
+    <div className="min-h-screen bg-neutral-950 text-emerald-500 font-mono flex flex-col items-center justify-center p-4">
+      
+      {/* INTRO SCREEN */}
+      {gameState === 'INTRO' && (
+        <div className="text-center space-y-6 animate-pulse">
+          <h1 className="text-4xl font-bold tracking-tighter border-b border-emerald-900 pb-4">
+            ECHOES OF THE GRID
+          </h1>
+          <pre className="text-xs md:text-sm leading-none opacity-80">
+            {`
+   _______________________
+  /                       \\
+ /      [ INITIALIZING ]   \\
+ |       MATRIX LOADED      |
+ \\      ENTITIES ACTIVE    /
+  \\_______________________/
+            `}
+          </pre>
+          <button 
+            onClick={startLevel}
+            className="px-8 py-3 bg-emerald-900/30 border border-emerald-500 hover:bg-emerald-500 hover:text-black transition-all cursor-pointer rounded"
+          >
+            PRESS ENTER TO BEGIN
+          </button>
+        </div>
+      )}
+
+      {/* GAMEPLAY SCREEN */}
+      {(gameState === 'PLAYING' || gameState === 'GAMEOVER') && (
+        <div className="w-full max-w-2xl flex flex-col gap-4">
+          <div className="flex justify-between items-end border-b border-emerald-900 pb-2">
+            <div>
+              <h2 className="text-xl font-bold">DUNGEON FLOOR 1</h2>
+              <div className="flex gap-4 text-sm mt-1">
+                <span>HP: <span className={player.hp < 30 ? "text-red-500" : ""}>{player.hp}</span> / {player.maxHp}</span>
+                <span>POS: ({player.x}, {player.y})</span>
+              </div>
+            </div>
+            {gameState === 'GAMEOVER' && <span className="text-red-500 font-bold animate-bounce">SIGNAL LOST: DEFEATED</span>}
+          </div>
+
+          {/* ASCII VIEWPORT */}
+          <div className="bg-black border-2 border-emerald-900 p-4 rounded shadow-[0_0_20px_rgba(16,185,129,0.1)] overflow-auto">
+            <pre className="text-lg leading-none select-none tracking-widest whitespace-pre">
+              {renderMap()}
+            </pre>
+          </div>
+
+          {/* LOGS */}
+          <div className="h-32 bg-emerald-950/20 border border-emerald-900 p-3 rounded text-sm italic overflow-hidden">
+            {log.map((entry, i) => (
+              <div key={i} className={i === 0 ? "opacity-100" : "opacity-40"}>
+                {`> ${entry}`}
+              </div>
+            ))}
+          </div>
+
+          <div className="text-[10px] text-emerald-800 flex justify-between uppercase tracking-widest">
+            <span>WASD to Move</span>
+            <span>Bump Enemy to Attack</span>
+          </div>
+
+          {gameState === 'GAMEOVER' && (
+            <button 
+              onClick={() => window.location.reload()}
+              className="mt-4 p-2 bg-red-900/20 border border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition-colors"
+            >
+              REBOOT SYSTEM
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default App;

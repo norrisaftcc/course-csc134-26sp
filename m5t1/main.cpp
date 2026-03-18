@@ -1,0 +1,26 @@
+#include <iostream>
+
+using namespace std;
+
+// M5T1, Simple Functions
+// norrisa
+// 3/18/26
+
+// Declare our functions
+void say_hello();               // no arguments, no return
+int  get_answer();              // no args, returns int
+int  double_a_num(int number);  // int arg, returns int
+
+// Write main()
+int main()
+{
+    say_hello();
+    return 0;
+}
+
+
+// Define our functions (full code goes here)
+
+void say_hello() {
+    cout << "Hello world!" << endl;
+}

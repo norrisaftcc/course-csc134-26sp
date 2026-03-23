@@ -18,6 +18,9 @@ int main()
         print_table_line(num, sq);
 
     }
-
+    // Next, write to a file
+    string filename = "squares.txt";
+    write_squares_table(filename, start, finish);
+    read_squares_table(filename);
     return 0;
 }

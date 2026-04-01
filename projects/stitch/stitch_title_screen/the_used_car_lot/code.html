@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TOKYO_DRIFT_88 - Used Car Lot</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary-fixed-dim": "#ffabf1",
+              "surface-container-high": "#2a2a2a",
+              "secondary-container": "#be05ba",
+              "on-tertiary": "#003737",
+              "tertiary-fixed": "#8ef3f2",
+              "surface-bright": "#393939",
+              "surface-container-lowest": "#0e0e0e",
+              "on-secondary-container": "#ffe5f6",
+              "on-error": "#690005",
+              "on-secondary": "#5c0059",
+              "background": "#131313",
+              "surface-container-low": "#1b1b1b",
+              "on-primary-container": "#dde1ff",
+              "surface-container": "#1f1f1f",
+              "inverse-primary": "#004bf0",
+              "primary": "#b7c4ff",
+              "tertiary": "#71d6d6",
+              "on-primary": "#002584",
+              "primary-fixed": "#dde1ff",
+              "primary-container": "#0050ff",
+              "outline-variant": "#434656",
+              "surface-tint": "#b7c4ff",
+              "on-primary-fixed-variant": "#0037b8",
+              "on-secondary-fixed-variant": "#82007f",
+              "error-container": "#93000a",
+              "on-surface-variant": "#c3c5d9",
+              "surface-variant": "#353535",
+              "on-secondary-fixed": "#380037",
+              "on-surface": "#e2e2e2",
+              "on-tertiary-container": "#8ff4f3",
+              "tertiary-container": "#007171",
+              "on-tertiary-fixed": "#002020",
+              "primary-fixed-dim": "#b7c4ff",
+              "inverse-on-surface": "#303030",
+              "outline": "#8d90a2",
+              "secondary": "#ffabf1",
+              "on-error-container": "#ffdad6",
+              "surface-dim": "#131313",
+              "error": "#ffb4ab",
+              "surface": "#131313",
+              "on-primary-fixed": "#001453",
+              "inverse-surface": "#e2e2e2",
+              "surface-container-highest": "#353535",
+              "tertiary-fixed-dim": "#71d6d6",
+              "secondary-fixed": "#ffd7f4",
+              "on-tertiary-fixed-variant": "#004f4f",
+              "on-background": "#e2e2e2"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["Space Grotesk"],
+              "label": ["Space Grotesk"]
+            },
+            borderRadius: {"DEFAULT": "0px", "lg": "0px", "xl": "0px", "full": "0px"},
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #131313;
+            image-rendering: pixelated;
+        }
+        .crt-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+        .pixel-border {
+            box-shadow: 4px 4px 0px 0px #0e0e0e;
+        }
+        .active-tab-shadow {
+            box-shadow: 4px 4px 0px 0px #0037b8;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="font-body text-on-surface selection:bg-secondary selection:text-on-secondary">
+<div class="crt-overlay"></div>
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 py-4 bg-[#131313] dark:bg-[#131313] border-b-4 border-[#0050ff]">
+<div class="flex flex-col">
+<span class="font-['Space_Grotesk'] uppercase tracking-widest text-[0.75rem] text-[#b7c4ff] dark:text-[#b7c4ff]">EST. 1988</span>
+<h1 class="text-xl font-black text-[#0050ff] dark:text-[#b7c4ff] italic">TOKYO_DRIFT_88</h1>
+</div>
+<div class="flex gap-4 items-center">
+<div class="bg-surface-container-highest px-4 py-2 border-2 border-primary flex items-center gap-3">
+<span class="material-symbols-outlined text-tertiary" data-icon="payments">payments</span>
+<span class="font-headline font-black text-primary text-xl tracking-tighter">$14,500</span>
+</div>
+<div class="flex gap-2">
+<button class="p-2 text-[#434656] hover:bg-[#0050ff] hover:text-white transition-none active:translate-y-1">
+<span class="material-symbols-outlined" data-icon="schedule">schedule</span>
+</button>
+<button class="p-2 text-[#434656] hover:bg-[#0050ff] hover:text-white transition-none active:translate-y-1">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+</button>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-32 min-h-screen px-6 max-w-7xl mx-auto">
+<!-- Hero Section: The Lot Background -->
+<section class="relative w-full h-64 mb-12 border-4 border-outline overflow-hidden">
+<img class="w-full h-full object-cover opacity-60 grayscale-[0.5] contrast-125" data-alt="Retro 1980s used car lot at dusk with neon signs, colorful triangular pennant flags, and silhouettes of classic Japanese sports cars" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCVLwvbU3RwGdGxy28_V4hUdU90A-eH-occZZUmaaS6h0DQmOEv-dT4xaTXiuQuuNa2snsq_bm3UH1TuWnr52BdVWy1N1_qnBCMBOPO_GQOmW7_iHXetB17nywsEC_YushgctAWaM12iu1vBObtYu4lfRuNQXv3QYqiuTiDmDW6iV1Yi66ZrpwNSkxvrfqhEYHS56YLsGqmcdD3zKhQH5hXM8Bkhl5EP2Rzl_CZGewklvvRpN4KFqO27RpchfmlHTeiKum1c4WvcYXo"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
+<div class="absolute bottom-6 left-6">
+<div class="inline-block bg-secondary-container text-white px-4 py-1 mb-2 font-bold uppercase tracking-widest text-xs">Location: Downtown</div>
+<h2 class="text-4xl font-black italic tracking-tighter text-white uppercase bg-background px-4 py-2 border-l-8 border-secondary">Uncle Kenji's Auto-Imports</h2>
+</div>
+</section>
+<!-- Inventory Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<!-- Car Card 1 -->
+<div class="bg-surface-container-low border-2 border-outline-variant hover:border-primary transition-none group cursor-pointer pixel-border">
+<div class="relative h-48 bg-surface-container-lowest overflow-hidden border-b-2 border-outline-variant">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-none opacity-80 group-hover:opacity-100" data-alt="1980s white Japanese hatchback sports car in a pixelated vintage aesthetic, sharp angles, pop-up headlights hidden" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDuNZIUWFrG84ObaEN-LlASVL9hzR77sj_MI28RBZYpZ7rdJ2I-nj5mgFog9vKfxzeCgtNv1HPmRWUa2m0bk6Q1HoLNqxIUWF7NqVwnME_9jVoi1fVg-WKe-jZgj_CDvwlzZAY5q0M5FS4bhjpzKzPA5m1zoZ19d3jbYVfXS3ndDCqDk1yTp8DS_K-2iaftQJw-K6f1r8KPWnKUECQZ9Yxb-uJMBu26DC76WuVQMNbXT2XbuoR7ChguzoKsTZKiPibzGmGog74QDFgY"/>
+<div class="absolute top-0 right-0 bg-primary-container text-white font-bold px-3 py-1 text-sm tracking-tighter">$2,200</div>
+<div class="absolute bottom-2 left-2 flex gap-1">
+<span class="bg-tertiary-container text-on-tertiary-container text-[10px] px-2 py-0.5 font-bold uppercase">Runs... mostly</span>
+</div>
+</div>
+<div class="p-4">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-headline font-bold text-xl uppercase tracking-tight text-primary">Hachi-Go 1985</h3>
+<span class="material-symbols-outlined text-outline" data-icon="directions_car">directions_car</span>
+</div>
+<p class="text-on-surface-variant text-sm font-medium mb-4 leading-tight">Original paint, slightly rusty wheel wells. Smells like old cassettes.</p>
+<button class="w-full bg-surface-container-highest text-on-surface group-hover:bg-primary-container group-hover:text-white font-bold py-3 uppercase tracking-widest text-xs transition-none flex items-center justify-center gap-2">
+                        Inspect Vehicle <span class="material-symbols-outlined text-sm" data-icon="search">search</span>
+</button>
+</div>
+</div>
+<!-- Car Card 2 -->
+<div class="bg-surface-container-low border-2 border-outline-variant hover:border-secondary transition-none group cursor-pointer pixel-border">
+<div class="relative h-48 bg-surface-container-lowest overflow-hidden border-b-2 border-outline-variant">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-none opacity-80 group-hover:opacity-100" data-alt="Sleek silver mid-engine 80s sports car with sharp wedge shape, low profile, retro futuristic automotive design" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7MRgnDeXY6RL8S7xVY-ncraekBgasmkwenZrspIMN-rHU52owekQjX8Miq4V7wr5uoaUD4HES9mFIsWaI8JiZGSWQZSgrgk6FKN-u3O-jUhXY3XsdK56VLd8W40ku0ldj-0idXPgVGNJ-kxxeteMvVcxTualMdepmF0WbwCJssbQbUIK9Jbj933IXrArIbGL8yDP0pMILKKistRzJbeUf3azOE_Um7jT6FTLYzqfSVFinujAavFK_bCnKkS6VlkGV1z2JYlw22mFl"/>
+<div class="absolute top-0 right-0 bg-secondary-container text-white font-bold px-3 py-1 text-sm tracking-tighter">$5,800</div>
+<div class="absolute bottom-2 left-2 flex gap-1">
+<span class="bg-error-container text-on-error-container text-[10px] px-2 py-0.5 font-bold uppercase">Needs Trans</span>
+</div>
+</div>
+<div class="p-4">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-headline font-bold text-xl uppercase tracking-tight text-secondary">Z-Spec Wedge 1988</h3>
+<span class="material-symbols-outlined text-outline" data-icon="directions_car">directions_car</span>
+</div>
+<p class="text-on-surface-variant text-sm font-medium mb-4 leading-tight">Pop-up headlights work (usually). Perfect for project builds.</p>
+<button class="w-full bg-surface-container-highest text-on-surface group-hover:bg-secondary-container group-hover:text-white font-bold py-3 uppercase tracking-widest text-xs transition-none flex items-center justify-center gap-2">
+                        Inspect Vehicle <span class="material-symbols-outlined text-sm" data-icon="search">search</span>
+</button>
+</div>
+</div>
+<!-- Car Card 3 -->
+<div class="bg-surface-container-low border-2 border-outline-variant hover:border-tertiary transition-none group cursor-pointer pixel-border">
+<div class="relative h-48 bg-surface-container-lowest overflow-hidden border-b-2 border-outline-variant">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-none opacity-80 group-hover:opacity-100" data-alt="Dull beige 1980s family sedan, boxy four-door design, very plain and generic commuter car" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdZygx8UsChp0E7DXi9JtbQGhALNjcJGvkZMmCAbw6IWgYDPEia1cQFFP4lB9Zx6pEgnqIxlaNMwxf3WEaxBLLCq9V_K_fYlD5WqBVDBK73YFDCTs2vCjbyXZsU0FisZtc4yIb97ebwvzMkqntAgY02JxdSpt52AVho6ELrPxMKMnNkigBMgegtMwEcAaYpGVy0v5LJSXvahdDuMAO55JFcDpWXpmazwoLMHHew4O2D6IysU6_QeR2rujRtR0dpkopBLfDki0F3N6n"/>
+<div class="absolute top-0 right-0 bg-tertiary-container text-white font-bold px-3 py-1 text-sm tracking-tighter">$1,100</div>
+<div class="absolute bottom-2 left-2 flex gap-1">
+<span class="bg-surface-container-highest text-white text-[10px] px-2 py-0.5 font-bold uppercase">Minty Clean</span>
+</div>
+</div>
+<div class="p-4">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-headline font-bold text-xl uppercase tracking-tight text-tertiary">Reliant Box 1982</h3>
+<span class="material-symbols-outlined text-outline" data-icon="directions_car">directions_car</span>
+</div>
+<p class="text-on-surface-variant text-sm font-medium mb-4 leading-tight">One previous owner (a grandmother). Zero style, 100% reliable.</p>
+<button class="w-full bg-surface-container-highest text-on-surface group-hover:bg-tertiary-container group-hover:text-white font-bold py-3 uppercase tracking-widest text-xs transition-none flex items-center justify-center gap-2">
+                        Inspect Vehicle <span class="material-symbols-outlined text-sm" data-icon="search">search</span>
+</button>
+</div>
+</div>
+<!-- Car Card 4 -->
+<div class="bg-surface-container-low border-2 border-outline-variant hover:border-primary transition-none group cursor-pointer pixel-border">
+<div class="relative h-48 bg-surface-container-lowest overflow-hidden border-b-2 border-outline-variant">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-none opacity-80 group-hover:opacity-100" data-alt="Retro muscle car from the late 80s, black paint with faded racing stripes, aggressive front grille" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBz9KwTr_S6p18OuLckULk_p8CK2vm3_mkhOYGVC8JemasUtDk0TOnI50cVM4fPdcsO7bvsbFwNUGf8kc_LpuJplQaeWlgukB4LjFH-nlvs2LcqVrQVTTSPMyuzpwzFJw391uTRJMMrJqg0NyO5lhTcgRCLOckhjah1WKgAaoMDbXiv3tpP3n1fRqJggt5oFv-ALv4XHMQXe2JL7UC6OVUF4jYgQr7DXUpPjRy2rrOqL1mpfa-xF62XM6k-MX0U-qFg-hBWG8XhosBL"/>
+<div class="absolute top-0 right-0 bg-primary-container text-white font-bold px-3 py-1 text-sm tracking-tighter">$3,450</div>
+<div class="absolute bottom-2 left-2 flex gap-1">
+<span class="bg-error-container text-on-error-container text-[10px] px-2 py-0.5 font-bold uppercase">Loud AF</span>
+</div>
+</div>
+<div class="p-4">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-headline font-bold text-xl uppercase tracking-tight text-primary">Interstate V8</h3>
+<span class="material-symbols-outlined text-outline" data-icon="directions_car">directions_car</span>
+</div>
+<p class="text-on-surface-variant text-sm font-medium mb-4 leading-tight">Modified exhaust. Neighbors will hate you. You will love it.</p>
+<button class="w-full bg-surface-container-highest text-on-surface group-hover:bg-primary-container group-hover:text-white font-bold py-3 uppercase tracking-widest text-xs transition-none flex items-center justify-center gap-2">
+                        Inspect Vehicle <span class="material-symbols-outlined text-sm" data-icon="search">search</span>
+</button>
+</div>
+</div>
+<!-- Car Card 5 -->
+<div class="bg-surface-container-low border-2 border-outline-variant hover:border-secondary transition-none group cursor-pointer pixel-border">
+<div class="relative h-48 bg-surface-container-lowest overflow-hidden border-b-2 border-outline-variant">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-none opacity-80 group-hover:opacity-100" data-alt="Small red 80s off-road 4x4 vehicle, boxy frame, rugged tires, vintage adventure car" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCj_kuPp7ZmxXcfC_RaS6es4bQOcX8xDIPCwcT9qUUvgQIHBxIq0VRZeexa5_zMDyo8Auzq-FHRLIvS9FJ8JCODSOT0trxUfylkmwuBh6ZWb6xb7zyqkUVSqHJNwmQ37LTrPM8gMICrRl-hmeRUMgOlc2YQn-pb5HE6Qad4XCGTeY0zyxhiUJ2FeNx4wqkCYAoam_7CB-29zph9KCBCJd3Cn_bNIvtUkj89u050nJwbr_oN2TXLkMrAR1mQFOaS3TTJxFC9V4qa5M_R"/>
+<div class="absolute top-0 right-0 bg-secondary-container text-white font-bold px-3 py-1 text-sm tracking-tighter">$1,800</div>
+<div class="absolute bottom-2 left-2 flex gap-1">
+<span class="bg-tertiary-container text-on-tertiary-container text-[10px] px-2 py-0.5 font-bold uppercase">Leaky Roof</span>
+</div>
+</div>
+<div class="p-4">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-headline font-bold text-xl uppercase tracking-tight text-secondary">Mud-Skipper 4WD</h3>
+<span class="material-symbols-outlined text-outline" data-icon="directions_car">directions_car</span>
+</div>
+<p class="text-on-surface-variant text-sm font-medium mb-4 leading-tight">Convertible top is stuck half-open. Great for tall people.</p>
+<button class="w-full bg-surface-container-highest text-on-surface group-hover:bg-secondary-container group-hover:text-white font-bold py-3 uppercase tracking-widest text-xs transition-none flex items-center justify-center gap-2">
+                        Inspect Vehicle <span class="material-symbols-outlined text-sm" data-icon="search">search</span>
+</button>
+</div>
+</div>
+<!-- Empty Slot / Coming Soon -->
+<div class="border-2 border-dashed border-outline-variant flex flex-col items-center justify-center p-8 bg-surface-container-lowest opacity-40">
+<span class="material-symbols-outlined text-6xl mb-4" data-icon="tire_repair">tire_repair</span>
+<span class="font-headline font-black text-xl uppercase tracking-tighter italic">Sold Out</span>
+<span class="text-[10px] uppercase font-bold text-outline">Next shipment: Tuesday</span>
+</div>
+</div>
+<!-- Dialogue Box / Shop Interaction -->
+<div class="mt-16 relative">
+<div class="absolute -top-6 left-8 bg-secondary-container text-white px-6 py-1 font-black italic uppercase tracking-widest border-2 border-white z-10">Kenji</div>
+<div class="bg-surface-container-lowest border-4 border-outline p-8 pixel-border">
+<p class="text-xl font-medium leading-relaxed mb-6">"See somethin' you like, kid? These beauties don't stay on the lot for long. You want to win the midnight runs, you're gonna need more than just hope. You're gonna need a transmission that doesn't scream like a banshee."</p>
+<div class="flex flex-wrap gap-4">
+<button class="bg-primary-container text-white font-black px-6 py-3 uppercase tracking-widest text-sm hover:bg-primary hover:text-on-primary transition-none flex items-center gap-3">
+<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span> Take a closer look
+                    </button>
+<button class="bg-surface-container-highest text-on-surface font-black px-6 py-3 uppercase tracking-widest text-sm hover:bg-outline-variant transition-none">
+                        "Maybe later..."
+                    </button>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center h-20 px-2 pb-safe bg-[#0e0e0e] dark:bg-[#0e0e0e] border-t-4 border-[#be05ba] shadow-[0_-4px_0_0_#000000]">
+<a class="flex flex-col items-center justify-center bg-[#be05ba] text-white p-2 scale-105 active:scale-95 transition-none active-tab-shadow" href="#">
+<span class="material-symbols-outlined" data-icon="directions_car">directions_car</span>
+<span class="font-['Space_Grotesk'] font-bold text-xs uppercase">Drive</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#434656] p-2 hover:bg-[#353535] transition-none active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="map">map</span>
+<span class="font-['Space_Grotesk'] font-bold text-xs uppercase">Map</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#434656] p-2 hover:bg-[#353535] transition-none active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="storefront">storefront</span>
+<span class="font-['Space_Grotesk'] font-bold text-xs uppercase">Garage</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#434656] p-2 hover:bg-[#353535] transition-none active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="monitoring">monitoring</span>
+<span class="font-['Space_Grotesk'] font-bold text-xs uppercase">Status</span>
+</a>
+</nav>
+</body></html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TOKYO_DRIFT_88 - ARCADE EDITION</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: #131313;
+            overflow: hidden;
+        }
+        .crt-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.4) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 4px, 3px 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+        .pixel-text-shadow {
+            text-shadow: 4px 4px 0px #0356ff;
+        }
+        .pixel-text-shadow-red {
+            text-shadow: 4px 4px 0px #880000;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        .animate-press-start {
+            animation: blink 0.6s steps(1) infinite;
+        }
+        .arcade-grid {
+            background-image: 
+                linear-gradient(to right, #393939 1px, transparent 1px),
+                linear-gradient(to bottom, #393939 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "background": "#131313",
+                "surface": "#1b1b1b",
+                "primary": "#ff5540", // Arcade Red
+                "secondary": "#0356ff", // Console Blue
+                "tertiary": "#f1c100", // Retro Yellow
+                "on-surface": "#e2e2e2",
+                "outline": "#393939"
+              },
+              fontFamily: {
+                "headline": ["Space Grotesk"],
+                "body": ["Space Grotesk"],
+                "label": ["Space Grotesk"]
+              },
+              borderRadius: {"DEFAULT": "0px", "lg": "0px", "xl": "0px", "full": "9999px"},
+            },
+          },
+        }
+    </script>
+</head>
+<body class="dark bg-background text-on-background selection:bg-primary selection:text-white">
+<div class="crt-overlay"></div>
+<!-- Top App Bar (From Component 8) -->
+<nav class="fixed top-0 w-full border-b-4 border-[#393939] flex justify-between items-center px-4 h-16 w-full z-50 bg-[#131313]">
+<div class="text-2xl font-black text-[#ff5540] italic font-['Space_Grotesk'] uppercase tracking-tighter">ARCADE_OS_V1.0</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#ff5540] transition-none active:translate-y-1 cursor-pointer">schedule</span>
+<span class="material-symbols-outlined text-[#ff5540] transition-none active:translate-y-1 cursor-pointer">payments</span>
+<div class="w-8 h-8 bg-[#393939] flex items-center justify-center border-2 border-[#ff5540]">
+<span class="material-symbols-outlined text-xs text-[#ff5540]">person</span>
+</div>
+</div>
+</nav>
+<!-- Main Canvas -->
+<main class="relative min-h-screen flex flex-col items-center justify-center pt-16 pb-20 px-6 overflow-hidden">
+<!-- Arcade Background -->
+<div class="absolute inset-0 z-0 overflow-hidden pointer-events-none arcade-grid opacity-20"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background"></div>
+<!-- Title Section -->
+<header class="relative z-10 text-center space-y-2 mb-12">
+<p class="text-tertiary font-bold tracking-[0.6em] uppercase text-xs mb-4">SYSTEM_BOOT_SUCCESSFUL</p>
+<h1 class="text-7xl md:text-9xl font-black italic tracking-tighter text-secondary pixel-text-shadow leading-none">
+                TOKYO<br/>DRIFT_88
+            </h1>
+<div class="flex justify-center items-center gap-2 mt-6">
+<div class="h-2 w-12 bg-primary"></div>
+<span class="text-white font-black text-2xl uppercase tracking-[0.2em] italic">INSERT COIN</span>
+<div class="h-2 w-12 bg-primary"></div>
+</div>
+</header>
+<!-- Options Menu -->
+<div class="relative z-10 w-full max-w-sm space-y-4">
+<!-- New Game -->
+<button class="w-full group relative flex items-center justify-between bg-black border-4 border-secondary px-8 py-5 transition-none hover:bg-secondary hover:text-white active:translate-y-1">
+<span class="text-2xl font-black uppercase tracking-widest text-secondary group-hover:text-white">New Game</span>
+<span class="material-symbols-outlined text-3xl text-secondary group-hover:text-white" data-icon="play_arrow">play_arrow</span>
+<div class="absolute -bottom-2 -right-2 -z-10 w-full h-full bg-[#001453]"></div>
+</button>
+<!-- Continue -->
+<button class="w-full group relative flex items-center justify-between bg-black border-4 border-outline px-8 py-5 transition-none hover:bg-primary hover:border-primary hover:text-white active:translate-y-1">
+<span class="text-2xl font-black uppercase tracking-widest text-on-surface group-hover:text-white">Continue</span>
+<span class="material-symbols-outlined text-3xl text-on-surface group-hover:text-white" data-icon="save">save</span>
+<div class="absolute -bottom-2 -right-2 -z-10 w-full h-full bg-[#303030]"></div>
+</button>
+<!-- Options -->
+<button class="w-full group relative flex items-center justify-between bg-black border-4 border-outline px-8 py-5 transition-none hover:bg-tertiary hover:border-tertiary hover:text-black active:translate-y-1">
+<span class="text-2xl font-black uppercase tracking-widest text-on-surface group-hover:text-black">Options</span>
+<span class="material-symbols-outlined text-3xl text-on-surface group-hover:text-black" data-icon="settings">settings</span>
+<div class="absolute -bottom-2 -right-2 -z-10 w-full h-full bg-[#303030]"></div>
+</button>
+</div>
+<!-- Footer / Start Prompt -->
+<footer class="relative z-10 text-center mt-12 space-y-6">
+<div class="animate-press-start">
+<p class="text-primary font-black text-2xl uppercase tracking-[0.3em] pixel-text-shadow-red">PUSH START BUTTON</p>
+</div>
+<div class="flex flex-col items-center gap-1">
+<p class="text-[0.7rem] font-black tracking-widest uppercase text-outline">© 1986 NEON_CORP INTERACTIVE</p>
+<p class="text-[0.7rem] font-black tracking-widest uppercase text-secondary">READY PLAYER ONE</p>
+</div>
+</footer>
+<!-- Decorative UI Elements -->
+<div class="absolute top-20 left-8 w-16 h-16 border-t-8 border-l-8 border-primary z-20"></div>
+<div class="absolute top-20 right-8 w-16 h-16 border-t-8 border-r-8 border-primary z-20"></div>
+<div class="absolute bottom-24 left-8 w-16 h-16 border-b-8 border-l-8 border-secondary z-20"></div>
+<div class="absolute bottom-24 right-8 w-16 h-16 border-b-8 border-r-8 border-secondary z-20"></div>
+</main>
+<!-- Side Status Rails -->
+<aside class="hidden xl:flex fixed left-10 top-1/2 -translate-y-1/2 flex-col gap-8 z-30">
+<div class="p-3 bg-black border-l-4 border-primary">
+<p class="text-[0.65rem] font-black text-primary tracking-tighter">BIT_RATE</p>
+<div class="w-12 h-2 bg-primary mt-1"></div>
+</div>
+<div class="p-3 bg-black border-l-4 border-secondary">
+<p class="text-[0.65rem] font-black text-secondary tracking-tighter">BUF_STRM</p>
+<div class="w-20 h-2 bg-secondary mt-1"></div>
+</div>
+<div class="p-3 bg-black border-l-4 border-tertiary">
+<p class="text-[0.65rem] font-black text-tertiary tracking-tighter">HI_SCORE</p>
+<div class="w-16 h-2 bg-tertiary mt-1"></div>
+</div>
+</aside>
+<!-- Bottom Navigation Bar (From Component 8) -->
+<nav class="fixed bottom-0 left-0 w-full h-20 z-50 flex justify-around items-stretch bg-[#131313] border-t-4 border-[#393939]">
+<!-- Drive -->
+<div class="flex flex-col items-center justify-center text-[#b6c4ff] h-full w-full hover:bg-[#0356ff] hover:text-white cursor-pointer group">
+<span class="material-symbols-outlined" data-icon="sports_motorsports">sports_motorsports</span>
+<span class="font-['Space_Grotesk'] font-bold text-xs uppercase mt-1">DRIVE</span>
+</div>
+<!-- Map -->
+<div class="flex flex-col items-center justify-center text-[#b6c4ff] h-full w-full hover:bg-[#0356ff] hover:text-white cursor-pointer group">
+<span class="material-symbols-outlined" data-icon="map">map</span>
+<span class="font-['Space_Grotesk'] font-bold text-xs uppercase mt-1">MAP</span>
+</div>
+<!-- Garage -->
+<div class="flex flex-col items-center justify-center text-[#b6c4ff] h-full w-full hover:bg-[#0356ff] hover:text-white cursor-pointer group">
+<span class="material-symbols-outlined" data-icon="settings_input_component">settings_input_component</span>
+<span class="font-['Space_Grotesk'] font-bold text-xs uppercase mt-1">GARAGE</span>
+</div>
+<!-- Status -->
+<div class="flex flex-col items-center justify-center bg-[#ff5540] text-[#131313] h-full w-full cursor-pointer">
+<span class="material-symbols-outlined" data-icon="leaderboard">leaderboard</span>
+<span class="font-['Space_Grotesk'] font-bold text-xs uppercase mt-1">STATUS</span>
+</div>
+</nav>
+</body></html>

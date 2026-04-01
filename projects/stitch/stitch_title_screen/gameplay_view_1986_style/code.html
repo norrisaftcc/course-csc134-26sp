@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ff5540", // Bright Red
+                        "secondary": "#0356ff", // Bold Blue
+                        "tertiary": "#f1c100", // Retro Yellow/Gold
+                        "background": "#131313", // Deep Charcoal
+                        "surface-container": "#1f1f1f",
+                        "on-surface": "#e2e2e2",
+                        "on-primary": "#131313",
+                        "outline-variant": "#393939",
+                        "surface-container-highest": "#2a2a2a",
+                        "surface-container-lowest": "#080808"
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Space Grotesk"],
+                        "label": ["Space Grotesk"]
+                    },
+                    borderRadius: {"DEFAULT": "0px", "lg": "0px", "xl": "0px", "full": "0px"}, // Blocky aesthetic
+                },
+            },
+        }
+    </script>
+<style>
+        .crt-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.05), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.05));
+            background-size: 100% 4px, 4px 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #131313;
+            overflow: hidden;
+        }
+        .pixelated {
+            image-rendering: pixelated;
+        }
+        .arcade-border {
+            border-style: solid;
+            box-shadow: 4px 4px 0px 0px #000;
+        }
+    </style>
+</head>
+<body class="font-body text-on-surface select-none">
+<!-- CRT Scanline Effect Overlay -->
+<div class="crt-overlay"></div>
+<!-- Shared Component: TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-16 w-full bg-[#131313] border-b-4 border-[#393939]">
+<div class="text-2xl font-black text-[#ff5540] italic font-['Space_Grotesk'] uppercase tracking-tighter">ARCADE_OS_V1.0</div>
+<nav class="hidden md:flex gap-8">
+<a class="text-[#f1c100] font-['Space_Grotesk'] uppercase tracking-tighter transition-none active:translate-y-1" href="#">Drive</a>
+<a class="text-[#b6c4ff] font-['Space_Grotesk'] uppercase tracking-tighter hover:bg-[#ff5540] hover:text-[#131313] transition-none active:translate-y-1" href="#">Map</a>
+<a class="text-[#b6c4ff] font-['Space_Grotesk'] uppercase tracking-tighter hover:bg-[#ff5540] hover:text-[#131313] transition-none active:translate-y-1" href="#">Garage</a>
+<a class="text-[#b6c4ff] font-['Space_Grotesk'] uppercase tracking-tighter hover:bg-[#ff5540] hover:text-[#131313] transition-none active:translate-y-1" href="#">Status</a>
+</nav>
+<div class="flex items-center gap-4 text-[#ff5540]">
+<span class="material-symbols-outlined">schedule</span>
+<span class="material-symbols-outlined">payments</span>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="relative w-full h-screen pt-16 pb-20 overflow-hidden flex flex-col items-center justify-center">
+<!-- Background Scene (Hero) -->
+<div class="absolute inset-0 z-0">
+<img class="w-full h-full object-cover opacity-30 grayscale contrast-150" data-alt="Retro 1980s neon street at night with pixelated aesthetic, vibrant pink and blue lighting, empty urban sidewalk with arcade signs" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYiYQeA_hspMReecgDNKM8bu9GpGj_3HujtwiH-SVtAztVTXJC47dndsMQwLuA67lNoZA8GdafNiGaXsGaRbm5PoX4fayQD0kNz6cMvkZoddeDysU2-bMmT4UuPntlu_z0K1awOF0nfo8y-MBkkDQQ-jN9XxLbdmX2D8_ed1hZt63SwaXsvyx5gv4AKQ4bUwqSbRBF1Tn4hkXqytHWspaF0LasCpVzlWYXpgoD0ELaeOxR42dxV6uoTTsppTOfUgkDPdjMdOMOFsY2"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
+</div>
+<!-- Character Sprite Container -->
+<div class="relative z-10 flex-grow flex items-end justify-center mb-[-40px]">
+<img class="h-[870px] w-auto object-contain drop-shadow-[0_0_20px_rgba(255,85,64,0.2)] pixelated" data-alt="Stylized pixel art portrait of a young woman with a 1980s aesthetic, synthwave fashion, sharp focus, vibrant colors against dark backdrop" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVY2vYMXrKXCvE8x4pk0izC1Et4iEREJjRexHVkdGa7pEdLquiqLr3zyRemVsZ7VIyUUbFmmwwCJ8n6QuiuceWeaOmuyq_qqEr8ts5wemBQLCRRFaJ_PyGa2I9LgIVKc5aQ6-EH1kwVlI1KrHFY_7eLiL1-YAQW1yFAZOsWLXN2fVUsRlubLUSrmpD1HN-0lOAQwR1ygKl7BfWtNn5pECiATcUhMA2uTyjiDiG7f3BXZ55iUZVrsdxf8wCeqL0WICWr4Q5bN7Yl5OC"/>
+</div>
+<!-- Choice Menu (Above Dialogue) -->
+<div class="relative z-30 w-full max-w-2xl px-6 mb-6 flex flex-col gap-3">
+<button class="group w-full bg-surface-container-highest border-4 border-secondary p-4 flex items-center justify-between hover:bg-secondary transition-none text-left arcade-border">
+<span class="font-headline font-bold text-xl uppercase tracking-wider group-hover:text-white"><span class="text-primary mr-4 group-hover:text-white">A.</span> GO TO WORK</span>
+<span class="material-symbols-outlined text-primary group-hover:text-white">chevron_right</span>
+</button>
+<button class="group w-full bg-surface-container-highest border-4 border-secondary p-4 flex items-center justify-between hover:bg-secondary transition-none text-left arcade-border">
+<span class="font-headline font-bold text-xl uppercase tracking-wider group-hover:text-white"><span class="text-primary mr-4 group-hover:text-white">B.</span> TALK TO FRIENDS</span>
+<span class="material-symbols-outlined text-primary group-hover:text-white">chevron_right</span>
+</button>
+</div>
+<!-- Dialogue Box (The "Text Engine") -->
+<div class="relative z-20 w-full max-w-4xl px-4">
+<!-- Character Name Tab -->
+<div class="inline-block px-8 py-2 bg-primary text-on-primary font-headline font-black uppercase tracking-widest text-sm translate-x-4 arcade-border border-b-0 relative z-30">
+                REIKO
+            </div>
+<!-- Box Container -->
+<div class="bg-surface-container-lowest border-4 border-secondary p-6 arcade-border">
+<!-- Secondary Inner Border -->
+<div class="border-2 border-outline-variant p-4">
+<p class="font-body text-2xl leading-relaxed text-on-surface tracking-wide uppercase">
+                        "THE ENGINE TOLD ME EVERYTHING I NEEDED TO KNOW. TONIGHT, THE STREETS OF SHIBUYA BELONG TO THE FASTEST SPARK."
+                    </p>
+<div class="flex justify-end mt-4">
+<span class="material-symbols-outlined text-tertiary animate-bounce" style="font-variation-settings: 'FILL' 1;">arrow_drop_down</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Shared Component: BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full h-20 z-50 flex justify-around items-stretch bg-[#131313] border-t-4 border-[#393939]">
+<div class="flex flex-col items-center justify-center bg-[#ff5540] text-[#131313] h-full w-full">
+<span class="material-symbols-outlined" data-icon="sports_motorsports">sports_motorsports</span>
+<span class="font-['Space_Grotesk'] font-bold text-xs uppercase">DRIVE</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#b6c4ff] h-full w-full hover:bg-[#0356ff] hover:text-white transition-none">
+<span class="material-symbols-outlined" data-icon="map">map</span>
+<span class="font-['Space_Grotesk'] font-bold text-xs uppercase">MAP</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#b6c4ff] h-full w-full hover:bg-[#0356ff] hover:text-white transition-none">
+<span class="material-symbols-outlined" data-icon="settings_input_component">settings_input_component</span>
+<span class="font-['Space_Grotesk'] font-bold text-xs uppercase">GARAGE</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#b6c4ff] h-full w-full hover:bg-[#0356ff] hover:text-white transition-none">
+<span class="material-symbols-outlined" data-icon="leaderboard">leaderboard</span>
+<span class="font-['Space_Grotesk'] font-bold text-xs uppercase">STATUS</span>
+</div>
+</nav>
+</body></html>

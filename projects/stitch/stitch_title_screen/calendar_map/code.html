@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary-fixed-dim": "#ffabf1",
+              "surface-container-high": "#2a2a2a",
+              "secondary-container": "#be05ba",
+              "on-tertiary": "#003737",
+              "tertiary-fixed": "#8ef3f2",
+              "surface-bright": "#393939",
+              "surface-container-lowest": "#0e0e0e",
+              "on-secondary-container": "#ffe5f6",
+              "on-error": "#690005",
+              "on-secondary": "#5c0059",
+              "background": "#131313",
+              "surface-container-low": "#1b1b1b",
+              "on-primary-container": "#dde1ff",
+              "surface-container": "#1f1f1f",
+              "inverse-primary": "#004bf0",
+              "primary": "#b7c4ff",
+              "tertiary": "#71d6d6",
+              "on-primary": "#002584",
+              "primary-fixed": "#dde1ff",
+              "primary-container": "#0050ff",
+              "outline-variant": "#434656",
+              "surface-tint": "#b7c4ff",
+              "on-primary-fixed-variant": "#0037b8",
+              "on-secondary-fixed-variant": "#82007f",
+              "error-container": "#93000a",
+              "on-surface-variant": "#c3c5d9",
+              "surface-variant": "#353535",
+              "on-secondary-fixed": "#380037",
+              "on-surface": "#e2e2e2",
+              "on-tertiary-container": "#8ff4f3",
+              "tertiary-container": "#007171",
+              "on-tertiary-fixed": "#002020",
+              "primary-fixed-dim": "#b7c4ff",
+              "inverse-on-surface": "#303030",
+              "outline": "#8d90a2",
+              "secondary": "#ffabf1",
+              "on-error-container": "#ffdad6",
+              "surface-dim": "#131313",
+              "error": "#ffb4ab",
+              "surface": "#131313",
+              "on-primary-fixed": "#001453",
+              "inverse-surface": "#e2e2e2",
+              "surface-container-highest": "#353535",
+              "tertiary-fixed-dim": "#71d6d6",
+              "secondary-fixed": "#ffd7f4",
+              "on-tertiary-fixed-variant": "#004f4f",
+              "on-background": "#e2e2e2"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["Space Grotesk"],
+              "label": ["Space Grotesk"]
+            },
+            borderRadius: {"DEFAULT": "0px", "lg": "0px", "xl": "0px", "full": "0px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .crt-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 4px, 3px 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-glow {
+            box-shadow: 0 0 15px rgba(0, 80, 255, 0.4);
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0e0e0e; }
+        ::-webkit-scrollbar-thumb { background: #0050ff; }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-primary-container selection:text-white">
+<div class="crt-overlay"></div>
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 py-4 bg-[#131313] dark:bg-[#131313] border-b-4 border-[#0050ff]">
+<div class="flex items-center gap-4">
+<span class="text-xl font-black text-[#0050ff] dark:text-[#b7c4ff] italic font-headline">TOKYO_DRIFT_88</span>
+<nav class="hidden md:flex gap-6 ml-8">
+<a class="text-[#71d6d6] font-bold font-['Space_Grotesk'] uppercase tracking-widest text-[0.75rem] translate-y-1 transition-none" href="#">Drive</a>
+<a class="text-[#434656] font-['Space_Grotesk'] uppercase tracking-widest text-[0.75rem] hover:bg-[#0050ff] hover:text-white transition-none" href="#">Map</a>
+<a class="text-[#434656] font-['Space_Grotesk'] uppercase tracking-widest text-[0.75rem] hover:bg-[#0050ff] hover:text-white transition-none" href="#">Garage</a>
+<a class="text-[#434656] font-['Space_Grotesk'] uppercase tracking-widest text-[0.75rem] hover:bg-[#0050ff] hover:text-white transition-none" href="#">Status</a>
+</nav>
+</div>
+<div class="flex items-center gap-4 text-[#b7c4ff]">
+<span class="material-symbols-outlined cursor-pointer hover:bg-[#0050ff] hover:text-white p-1">schedule</span>
+<span class="material-symbols-outlined cursor-pointer hover:bg-[#0050ff] hover:text-white p-1">payments</span>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-7xl mx-auto min-h-screen">
+<!-- Dashboard Header Stats -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+<div class="bg-surface-container-low p-6 border-l-4 border-primary-container flex flex-col justify-between">
+<span class="text-[0.75rem] font-bold uppercase tracking-widest text-primary">Current Cash</span>
+<span class="text-4xl font-black text-on-surface mt-2 tracking-tighter">$14,250.00</span>
+</div>
+<div class="bg-surface-container-low p-6 border-l-4 border-secondary-container flex flex-col justify-between">
+<span class="text-[0.75rem] font-bold uppercase tracking-widest text-secondary">Days Remaining</span>
+<span class="text-4xl font-black text-on-surface mt-2 tracking-tighter">18 DAYS</span>
+</div>
+<div class="bg-surface-container-low p-6 border-l-4 border-tertiary-container flex flex-col justify-between">
+<span class="text-[0.75rem] font-bold uppercase tracking-widest text-tertiary">Location</span>
+<span class="text-2xl font-black text-on-surface mt-2 tracking-tighter uppercase italic">Shibuya Sector 4</span>
+</div>
+</div>
+<div class="flex flex-col lg:flex-row gap-8">
+<!-- Calendar Section -->
+<div class="flex-grow">
+<div class="bg-surface-container-lowest p-1 mb-2 inline-block">
+<h2 class="bg-secondary-container text-white px-4 py-1 text-sm font-black uppercase tracking-widest">July 1988</h2>
+</div>
+<div class="grid grid-cols-7 gap-2">
+<!-- Day Labels -->
+<div class="text-center py-2 text-[0.75rem] font-bold text-outline-variant uppercase">Sun</div>
+<div class="text-center py-2 text-[0.75rem] font-bold text-outline-variant uppercase">Mon</div>
+<div class="text-center py-2 text-[0.75rem] font-bold text-outline-variant uppercase">Tue</div>
+<div class="text-center py-2 text-[0.75rem] font-bold text-outline-variant uppercase">Wed</div>
+<div class="text-center py-2 text-[0.75rem] font-bold text-outline-variant uppercase">Thu</div>
+<div class="text-center py-2 text-[0.75rem] font-bold text-outline-variant uppercase">Fri</div>
+<div class="text-center py-2 text-[0.75rem] font-bold text-outline-variant uppercase">Sat</div>
+<!-- Calendar Cells -->
+<!-- Week 1 (Empty starts) -->
+<div class="bg-surface-container-high/20 aspect-square"></div>
+<div class="bg-surface-container-high/20 aspect-square"></div>
+<div class="bg-surface-container-low p-2 aspect-square group hover:bg-primary-container hover:text-white transition-none cursor-pointer flex flex-col justify-between border-2 border-transparent">
+<span class="text-xs font-bold opacity-50">01</span>
+<div class="flex justify-center"><span class="material-symbols-outlined text-sm">work</span></div>
+</div>
+<div class="bg-surface-container-low p-2 aspect-square group hover:bg-primary-container hover:text-white transition-none cursor-pointer flex flex-col justify-between border-2 border-transparent">
+<span class="text-xs font-bold opacity-50">02</span>
+<div class="flex justify-center"><span class="material-symbols-outlined text-sm">directions_car</span></div>
+</div>
+<div class="bg-surface-container-low p-2 aspect-square group hover:bg-primary-container hover:text-white transition-none cursor-pointer flex flex-col justify-between border-2 border-transparent">
+<span class="text-xs font-bold opacity-50">03</span>
+<div class="flex justify-center"><span class="material-symbols-outlined text-sm">groups</span></div>
+</div>
+<div class="bg-surface-container-low p-2 aspect-square group hover:bg-primary-container hover:text-white transition-none cursor-pointer flex flex-col justify-between border-2 border-transparent">
+<span class="text-xs font-bold opacity-50">04</span>
+</div>
+<div class="bg-surface-container-low p-2 aspect-square group hover:bg-primary-container hover:text-white transition-none cursor-pointer flex flex-col justify-between border-2 border-transparent">
+<span class="text-xs font-bold opacity-50">05</span>
+<div class="flex justify-center"><span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">favorite</span></div>
+</div>
+<!-- Week 2 -->
+<div class="bg-surface-container-low p-2 aspect-square flex flex-col justify-between border-2 border-transparent opacity-30">
+<span class="text-xs font-bold">06</span>
+</div>
+<div class="bg-surface-container-low p-2 aspect-square flex flex-col justify-between border-2 border-transparent opacity-30">
+<span class="text-xs font-bold">07</span>
+</div>
+<div class="bg-surface-container-low p-2 aspect-square flex flex-col justify-between border-2 border-transparent opacity-30">
+<span class="text-xs font-bold">08</span>
+</div>
+<!-- Current Day -->
+<div class="bg-surface-container-highest p-2 aspect-square flex flex-col justify-between border-2 border-tertiary shadow-[4px_4px_0_0_#007171]">
+<span class="text-xs font-bold text-tertiary">12 [TODAY]</span>
+<div class="flex justify-center animate-pulse"><span class="material-symbols-outlined text-tertiary">location_on</span></div>
+</div>
+<!-- Remaining -->
+<div class="bg-surface-container-low p-2 aspect-square group hover:bg-primary-container hover:text-white transition-none cursor-pointer flex flex-col justify-between border-2 border-transparent">
+<span class="text-xs font-bold opacity-50">13</span>
+<div class="flex justify-center"><span class="material-symbols-outlined text-sm">work</span></div>
+</div>
+<div class="bg-surface-container-low p-2 aspect-square group hover:bg-primary-container hover:text-white transition-none cursor-pointer flex flex-col justify-between border-2 border-transparent">
+<span class="text-xs font-bold opacity-50">14</span>
+</div>
+<div class="bg-surface-container-low p-2 aspect-square group hover:bg-primary-container hover:text-white transition-none cursor-pointer flex flex-col justify-between border-2 border-transparent">
+<span class="text-xs font-bold opacity-50">15</span>
+<div class="flex justify-center"><span class="material-symbols-outlined text-sm">directions_car</span></div>
+</div>
+<!-- Generate enough placeholders for a clean grid -->
+<div class="bg-surface-container-low p-2 aspect-square opacity-20"><span class="text-xs font-bold">16</span></div>
+<div class="bg-surface-container-low p-2 aspect-square opacity-20"><span class="text-xs font-bold">17</span></div>
+<div class="bg-surface-container-low p-2 aspect-square opacity-20"><span class="text-xs font-bold">18</span></div>
+<div class="bg-surface-container-low p-2 aspect-square opacity-20"><span class="text-xs font-bold">19</span></div>
+<div class="bg-surface-container-low p-2 aspect-square opacity-20"><span class="text-xs font-bold">20</span></div>
+<div class="bg-surface-container-low p-2 aspect-square opacity-20"><span class="text-xs font-bold">21</span></div>
+<div class="bg-surface-container-low p-2 aspect-square opacity-20"><span class="text-xs font-bold">22</span></div>
+<div class="bg-surface-container-low p-2 aspect-square opacity-20"><span class="text-xs font-bold">23</span></div>
+<div class="bg-surface-container-low p-2 aspect-square opacity-20"><span class="text-xs font-bold">24</span></div>
+<div class="bg-surface-container-low p-2 aspect-square opacity-20"><span class="text-xs font-bold">25</span></div>
+<div class="bg-surface-container-low p-2 aspect-square opacity-20"><span class="text-xs font-bold">26</span></div>
+<div class="bg-surface-container-low p-2 aspect-square opacity-20"><span class="text-xs font-bold">27</span></div>
+<div class="bg-surface-container-low p-2 aspect-square opacity-20"><span class="text-xs font-bold">28</span></div>
+<div class="bg-surface-container-low p-2 aspect-square opacity-20"><span class="text-xs font-bold">29</span></div>
+<div class="bg-surface-container-low p-2 aspect-square opacity-20"><span class="text-xs font-bold">30</span></div>
+<div class="bg-surface-container-low p-2 aspect-square opacity-20"><span class="text-xs font-bold">31</span></div>
+</div>
+</div>
+<!-- Map & Sidebar Section -->
+<div class="lg:w-96 flex flex-col gap-6">
+<!-- Map Container -->
+<div class="relative bg-surface-container-lowest border-4 border-outline-variant p-1">
+<div class="bg-primary-container text-white px-3 py-1 text-[0.65rem] font-bold absolute -top-4 -left-1 uppercase">Topographic_Display</div>
+<div class="aspect-square bg-[#1a1a1a] relative overflow-hidden">
+<img class="w-full h-full object-cover opacity-60 mix-blend-screen grayscale contrast-150" data-alt="pixel art top down view of a neon lit 1980s city map with blocky roads and glowing grid lines" data-location="Tokyo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA6oNk4VTWyZ64tZRVtK2XPru1_6IdUEFa9qA1KA80fuHFTD8EkZLpp56CQVHJ6GUr-rNLyBbXBkHkmZhCxNNIZn76znnen7qYXw42h0WOaGBUVcGhKIH2QZElQR6CnU__TRoU2yJ7t8EYBePWLTb_10uPRtPB-qwVl-LeeXVJpfcMa_tzJKoH4CA1_dCITaa_q1J1kB9zKkUbT6M2p3LUVwFf7G4TNJkIIEUwn53kFqYgMM5Np19rFGL7Mdv1xPw4yiQvQhkSnJlVl"/>
+<!-- Custom Map UI Overlay -->
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="w-4 h-4 bg-tertiary border-2 border-white animate-ping"></div>
+<div class="absolute top-1/4 left-1/3 w-2 h-2 bg-secondary border border-white"></div>
+<div class="absolute bottom-1/3 right-1/4 w-2 h-2 bg-primary border border-white"></div>
+</div>
+<div class="absolute bottom-2 right-2 flex flex-col items-end gap-1">
+<span class="text-[0.6rem] bg-black/80 px-2 text-primary font-mono tracking-widest uppercase">LAT: 35.6895</span>
+<span class="text-[0.6rem] bg-black/80 px-2 text-primary font-mono tracking-widest uppercase">LNG: 139.6917</span>
+</div>
+</div>
+</div>
+<!-- Event Details Box -->
+<div class="bg-surface-container-lowest p-6 border-t-4 border-secondary-container relative overflow-hidden">
+<div class="absolute top-0 right-0 w-12 h-12 border-r-4 border-t-4 border-secondary/20"></div>
+<h3 class="text-secondary font-black uppercase text-lg mb-4 italic">Next Objective</h3>
+<div class="space-y-4">
+<div class="flex gap-4">
+<div class="w-12 h-12 bg-surface-container-high flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined">directions_car</span>
+</div>
+<div>
+<p class="text-xs font-bold uppercase text-outline">Garage Meeting</p>
+<p class="text-sm font-medium">Meet with Kenji at the wharf. Don't be late.</p>
+</div>
+</div>
+<div class="pt-4 border-t border-outline-variant/20">
+<button class="w-full bg-primary-container text-white font-black py-3 uppercase tracking-[0.2em] shadow-[4px_4px_0_0_#0037b8] hover:translate-y-1 hover:shadow-none transition-none">
+                                START JOURNEY
+                            </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center h-20 px-2 pb-safe bg-[#0e0e0e] dark:bg-[#0e0e0e] border-t-4 border-[#be05ba] shadow-[0_-4px_0_0_#000000]">
+<a class="flex flex-col items-center justify-center bg-[#be05ba] text-white p-2 scale-105" href="#">
+<span class="material-symbols-outlined">directions_car</span>
+<span class="font-['Space_Grotesk'] font-bold text-xs uppercase">Drive</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#434656] p-2 hover:bg-[#353535] transition-none" href="#">
+<span class="material-symbols-outlined">map</span>
+<span class="font-['Space_Grotesk'] font-bold text-xs uppercase">Map</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#434656] p-2 hover:bg-[#353535] transition-none" href="#">
+<span class="material-symbols-outlined">storefront</span>
+<span class="font-['Space_Grotesk'] font-bold text-xs uppercase">Garage</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#434656] p-2 hover:bg-[#353535] transition-none" href="#">
+<span class="material-symbols-outlined">monitoring</span>
+<span class="font-['Space_Grotesk'] font-bold text-xs uppercase">Status</span>
+</a>
+</nav>
+</body></html>

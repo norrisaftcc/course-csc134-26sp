@@ -27,6 +27,7 @@ int main() {
 // All full questions (function definitions) go here
 void question1() {
     cout << "Question 1" << endl;
+    // Gather average rainfall for 3 months.
 }
 
 void question2() {

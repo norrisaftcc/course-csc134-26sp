@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>From Loop to List — CSC 134 Module 6</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,600;0,700;1,400&family=Rajdhani:wght@500;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #0c0e14;
+    --surface:   #131620;
+    --surface2:  #1a1e2e;
+    --border:    #2a3050;
+    --teal:      #00d4a8;
+    --teal-dim:  #009b7a;
+    --amber:     #f5a623;
+    --amber-dim: #b87a1a;
+    --red:       #e05252;
+    --text:      #e2e6f0;
+    --muted:     #6b7599;
+    --code-bg:   #0a0c12;
+    --kw:        #7eb8f7;
+    --type:      #4ec9b0;
+    --str:       #ce9178;
+    --num:       #b5cea8;
+    --cmt:       #6a9955;
+    --fn:        #dcdcaa;
+    --pp:        #c586c0;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    overflow: hidden;
+  }
+
+  /* scanline overlay */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.07) 2px,
+      rgba(0,0,0,0.07) 4px
+    );
+    pointer-events: none;
+    z-index: 1000;
+  }
+
+  /* ─── DECK ─────────────────────────────── */
+  .deck {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 56px 72px 72px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease, transform 0.35s ease;
+    transform: translateX(40px);
+  }
+  .slide.active {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateX(0);
+  }
+  .slide.exit {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+
+  /* ─── CHROME ────────────────────────────── */
+  .chrome {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 72px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    z-index: 500;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .progress-bar {
+    position: fixed;
+    bottom: 48px; left: 0;
+    height: 2px;
+    background: var(--teal);
+    transition: width 0.4s ease;
+    z-index: 501;
+    box-shadow: 0 0 8px var(--teal);
+  }
+  .nav-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .nav-btn:hover { color: var(--teal); border-color: var(--teal); }
+
+  /* ─── TYPOGRAPHY ────────────────────────── */
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: var(--teal);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  h1 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: clamp(40px, 5vw, 68px);
+    font-weight: 700;
+    line-height: 1.05;
+    color: var(--text);
+    margin-bottom: 20px;
+  }
+  h2 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: clamp(28px, 3.5vw, 46px);
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+  h3 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--teal);
+    margin-bottom: 10px;
+  }
+  p {
+    font-size: 18px;
+    line-height: 1.65;
+    color: var(--text);
+    max-width: 700px;
+  }
+  .lead {
+    font-size: 22px;
+    font-weight: 300;
+    line-height: 1.5;
+    color: #b0b8d0;
+    max-width: 680px;
+  }
+
+  /* ─── ACCENT ────────────────────────────── */
+  .accent { color: var(--teal); }
+  .amber  { color: var(--amber); }
+  .red    { color: var(--red); }
+  .muted  { color: var(--muted); font-size: 14px; }
+
+  /* ─── CALLOUT ───────────────────────────── */
+  .callout {
+    border-left: 3px solid var(--teal);
+    background: rgba(0, 212, 168, 0.06);
+    padding: 14px 20px;
+    border-radius: 0 6px 6px 0;
+    margin-top: 20px;
+    max-width: 700px;
+  }
+  .callout.warn {
+    border-left-color: var(--amber);
+    background: rgba(245, 166, 35, 0.06);
+  }
+  .callout.danger {
+    border-left-color: var(--red);
+    background: rgba(224, 82, 82, 0.06);
+  }
+  .callout p { font-size: 16px; }
+  .callout-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 6px;
+  }
+  .callout.warn .callout-label  { color: var(--amber); }
+  .callout.danger .callout-label { color: var(--red); }
+
+  /* ─── CODE BLOCK ────────────────────────── */
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    line-height: 1.7;
+    overflow-x: auto;
+    position: relative;
+    max-width: 820px;
+  }
+  .code-block .lang-tag {
+    position: absolute;
+    top: 8px; right: 12px;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+  .kw   { color: var(--kw); }
+  .ty   { color: var(--type); }
+  .st   { color: var(--str); }
+  .nu   { color: var(--num); }
+  .cm   { color: var(--cmt); font-style: italic; }
+  .fn   { color: var(--fn); }
+  .pp   { color: var(--pp); }
+
+  /* ─── TWO-COL ────────────────────────────── */
+  .cols {
+    display: grid;
+    gap: 32px;
+    align-items: start;
+    flex: 1;
+  }
+  .cols-2 { grid-template-columns: 1fr 1fr; }
+  .cols-60-40 { grid-template-columns: 60fr 40fr; }
+  .cols-50-50 { grid-template-columns: 1fr 1fr; }
+
+  /* ─── MEMORY DIAGRAM ────────────────────── */
+  .mem-grid {
+    display: flex;
+    gap: 0;
+    margin: 20px 0 8px;
+  }
+  .mem-cell {
+    width: 64px;
+    height: 56px;
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background: var(--surface);
+    transition: all 0.3s;
+  }
+  .mem-cell:first-child { border-radius: 6px 0 0 6px; }
+  .mem-cell:last-child  { border-radius: 0 6px 6px 0; }
+  .mem-cell .val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--teal);
+  }
+  .mem-cell .idx {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    position: absolute;
+    bottom: 4px;
+  }
+  .mem-cell.lit {
+    background: rgba(0, 212, 168, 0.1);
+    border-color: var(--teal);
+  }
+  .mem-cell.dead {
+    background: var(--surface);
+    border-color: var(--border);
+  }
+  .mem-cell.dead .val { color: var(--muted); }
+
+  /* ─── BAR CHART ─────────────────────────── */
+  .bar-chart {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.4;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+  }
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .bar-label { color: var(--muted); width: 72px; text-align: right; flex-shrink: 0; }
+  .bar-fill  {
+    height: 18px;
+    background: var(--teal);
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    padding-left: 8px;
+    transition: width 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    min-width: 24px;
+  }
+  .bar-fill.amber { background: var(--amber); }
+  .bar-num {
+    font-size: 12px;
+    color: var(--bg);
+    font-weight: 700;
+  }
+
+  /* ─── COMPARE TABLE ──────────────────────── */
+  .compare-table {
+    width: 100%;
+    max-width: 780px;
+    border-collapse: collapse;
+    font-size: 15px;
+  }
+  .compare-table th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 10px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  .compare-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(42,48,80,0.5);
+    vertical-align: top;
+  }
+  .compare-table tr:last-child td { border-bottom: none; }
+  .compare-table td:first-child {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--teal);
+    white-space: nowrap;
+  }
+  .pill {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    margin-right: 4px;
+    font-weight: 600;
+  }
+  .pill.yes { background: rgba(0,212,168,0.15); color: var(--teal); }
+  .pill.no  { background: rgba(224,82,82,0.15);  color: var(--red); }
+  .pill.ok  { background: rgba(245,166,35,0.15); color: var(--amber); }
+
+  /* ─── TITLE SLIDE ─────────────────────────── */
+  .big-number {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 140px;
+    font-weight: 700;
+    color: rgba(0,212,168,0.08);
+    position: absolute;
+    right: 56px;
+    top: 40px;
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  /* ─── BADGE SLIDE ─────────────────────────── */
+  .badge-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--surface2);
+    border: 1px solid var(--teal);
+    border-radius: 12px;
+    padding: 20px 28px;
+    margin-top: 24px;
+  }
+  .badge-icon {
+    font-size: 36px;
+    line-height: 1;
+  }
+  .badge-text {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--teal);
+  }
+  .badge-sub {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* ─── DIVIDER ──────────────────────────── */
+  .divider {
+    width: 48px;
+    height: 2px;
+    background: var(--teal);
+    margin: 16px 0 24px;
+    border-radius: 2px;
+  }
+
+  /* ─── STEP LIST ─────────────────────────── */
+  .step-list {
+    list-style: none;
+    margin-top: 12px;
+  }
+  .step-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 14px;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #b0b8d0;
+  }
+  .step-num {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(0,212,168,0.12);
+    border: 1px solid var(--teal-dim);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--teal);
+    margin-top: 2px;
+  }
+
+  /* dot grid bg */
+  .slide::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(42,48,80,0.6) 1px, transparent 1px);
+    background-size: 28px 28px;
+    opacity: 0.4;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  /* vector highlight */
+  .code-block .hl { background: rgba(0,212,168,0.1); display: inline-block; width: 100%; border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+
+  <!-- ═══════════ SLIDE 0: TITLE ═══════════ -->
+  <div class="slide active" data-slide="0">
+    <div class="big-number">6</div>
+    <div style="margin-top: auto; margin-bottom: auto;">
+      <div class="eyebrow">CSC 134 · Module 6 · Arrays</div>
+      <h1>From Loop<br>to List</h1>
+      <div class="divider"></div>
+      <p class="lead">
+        How do programs <span class="accent">remember data</span> across iterations?<br>
+        Three approaches — each more powerful than the last.
+      </p>
+      <div style="margin-top: 40px; display: flex; gap: 24px; align-items: center;">
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--muted);">
+          <span class="accent">→ </span>loop &nbsp; <span class="accent">→ </span>array &nbsp; <span class="accent">→ </span>vector
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ SLIDE 1: THE PROBLEM ═══════════ -->
+  <div class="slide" data-slide="1">
+    <div class="eyebrow">The Setup</div>
+    <h2>You're tracking dungeon XP</h2>
+    <div class="divider"></div>
+    <div class="cols cols-60-40" style="flex:1;">
+      <div>
+        <p>Your party just cleared a 5-floor dungeon. You tracked XP as you went. At the end, you want to know:</p>
+        <ul class="step-list" style="margin-top:20px;">
+          <li><div class="step-num">1</div><span>What was the <strong style="color:var(--text);">total</strong> XP for the run?</span></li>
+          <li><div class="step-num">2</div><span>What was the <strong style="color:var(--text);">average</strong> per floor?</span></li>
+          <li><div class="step-num">3</div><span>Which floor was the <strong style="color:var(--text);">hardest</strong>?&nbsp;<span class="muted">(most XP)</span></span></li>
+          <li><div class="step-num">4</div><span>Can we <strong style="color:var(--text);">graph</strong> the run?</span></li>
+        </ul>
+        <div class="callout warn" style="margin-top:28px;">
+          <div class="callout-label">⚡ key question</div>
+          <p>Questions 3 and 4 require going <em>back</em> and looking at individual values. Can a simple loop do that?</p>
+        </div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:12px; padding-top:8px;">
+        <div style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); margin-bottom:4px; letter-spacing:0.1em;">DUNGEON RUN LOG</div>
+        <div style="font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.8; background:var(--code-bg); border:1px solid var(--border); border-radius:8px; padding:16px 20px; color:var(--text);">
+          <div>Floor 1 ····· <span class="nu">120</span> XP</div>
+          <div>Floor 2 ····· <span class="nu"> 85</span> XP</div>
+          <div>Floor 3 ····· <span class="nu">210</span> XP</div>
+          <div>Floor 4 ····· <span class="nu"> 95</span> XP</div>
+          <div>Floor 5 ····· <span class="nu">160</span> XP</div>
+          <div style="margin-top:10px; border-top:1px solid var(--border); padding-top:10px;">Total ······ <span class="accent" style="font-weight:700;">670</span> XP</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ SLIDE 2: PART 1 — LOOP ONLY ═══════════ -->
+  <div class="slide" data-slide="2">
+    <div class="eyebrow">Approach 1</div>
+    <h2>Loop with a running total</h2>
+    <div class="divider"></div>
+    <div class="cols cols-60-40" style="flex:1;">
+      <div>
+        <div class="code-block">
+          <div class="lang-tag">C++</div>
+<pre><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="kw">using namespace</span> <span class="ty">std</span>;
+
+<span class="kw">void</span> <span class="fn">partOne</span>() {
+    <span class="kw">const int</span> FLOORS = <span class="nu">5</span>;
+    <span class="kw">int</span> total = <span class="nu">0</span>;
+    <span class="kw">int</span> xp;
+
+    <span class="cm">// Loop through each floor</span>
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nu">0</span>; i &lt; FLOORS; i++) {
+        <span class="ty">cout</span> &lt;&lt; <span class="st">"Floor "</span> &lt;&lt; (i+<span class="nu">1</span>) &lt;&lt; <span class="st">" XP: "</span>;
+        <span class="ty">cin</span> &gt;&gt; xp;
+        total += xp;     <span class="cm">// accumulate</span>
+    }
+
+    <span class="kw">double</span> avg = (<span class="kw">double</span>)total / FLOORS;
+    <span class="ty">cout</span> &lt;&lt; <span class="st">"Total: "</span>   &lt;&lt; total &lt;&lt; <span class="st">"\n"</span>;
+    <span class="ty">cout</span> &lt;&lt; <span class="st">"Average: "</span> &lt;&lt; avg   &lt;&lt; <span class="st">"\n"</span>;
+}</pre>
+        </div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:16px; padding-top:4px;">
+        <div class="callout">
+          <div class="callout-label">✓ what works</div>
+          <p>Total and average — done. We process each value as it arrives.</p>
+        </div>
+        <div class="callout danger">
+          <div class="callout-label">✗ the problem</div>
+          <p>Once the loop ends, <span class="red">individual values are gone</span>. <code style="font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--amber);">xp</code> holds only the last input. We can't graph, compare, or re-examine anything.</p>
+        </div>
+        <div style="margin-top:8px;">
+          <div style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); margin-bottom:10px;">WHAT'S IN MEMORY AFTER THE LOOP:</div>
+          <div class="mem-grid">
+            <div class="mem-cell lit"><div class="val">670</div><div class="idx">total</div></div>
+            <div class="mem-cell lit"><div class="val">160</div><div class="idx">xp</div></div>
+          </div>
+          <div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--red); margin-top:8px;">floors 1–4 data: ████ gone</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ SLIDE 3: ARRAYS INTRO ═══════════ -->
+  <div class="slide" data-slide="3">
+    <div class="eyebrow">The Big Idea</div>
+    <h2>Memory has an address</h2>
+    <div class="divider"></div>
+    <div style="flex:1; display:flex; flex-direction:column; justify-content:center; max-width:820px;">
+      <p style="margin-bottom:28px;">An <span class="accent">array</span> is a contiguous block of memory — all cells the same type, laid out in a row, each accessible by index number.</p>
+      <div class="mem-grid" id="memDemo" style="margin-bottom:6px;">
+        <div class="mem-cell lit"><div class="val">120</div><div class="idx">[0]</div></div>
+        <div class="mem-cell lit"><div class="val">85</div><div class="idx">[1]</div></div>
+        <div class="mem-cell lit"><div class="val">210</div><div class="idx">[2]</div></div>
+        <div class="mem-cell lit"><div class="val">95</div><div class="idx">[3]</div></div>
+        <div class="mem-cell lit"><div class="val">160</div><div class="idx">[4]</div></div>
+      </div>
+      <div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); margin-bottom:24px; margin-left:2px;">int xp[5];  ← 5 integers, side by side</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; max-width:680px;">
+        <div class="callout" style="margin:0;">
+          <div class="callout-label">random access</div>
+          <p><code style="font-family:'JetBrains Mono',monospace; color:var(--amber);">xp[2]</code> gives you floor 3 instantly. Jump to any element, any time.</p>
+        </div>
+        <div class="callout" style="margin:0;">
+          <div class="callout-label">size is fixed at compile time</div>
+          <p>You declare how many slots you need. The compiler reserves exactly that much space.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ SLIDE 4: PART 2 — ARRAY CODE ═══════════ -->
+  <div class="slide" data-slide="4">
+    <div class="eyebrow">Approach 2</div>
+    <h2>Store everything in an array</h2>
+    <div class="divider"></div>
+    <div class="cols cols-60-40" style="flex:1;">
+      <div>
+        <div class="code-block">
+          <div class="lang-tag">C++</div>
+<pre><span class="kw">void</span> <span class="fn">partTwo</span>() {
+    <span class="kw">const int</span> FLOORS = <span class="nu">5</span>;
+    <span class="kw">int</span> xp[FLOORS];    <span class="cm">// array — 5 slots</span>
+    <span class="kw">int</span> total = <span class="nu">0</span>;
+
+    <span class="cm">// Collect data</span>
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nu">0</span>; i &lt; FLOORS; i++) {
+        <span class="ty">cout</span> &lt;&lt; <span class="st">"Floor "</span> &lt;&lt; (i+<span class="nu">1</span>) &lt;&lt; <span class="st">" XP: "</span>;
+        <span class="ty">cin</span> &gt;&gt; xp[i];   <span class="cm">// store it!</span>
+        total += xp[i];
+    }
+
+    <span class="ty">cout</span> &lt;&lt; <span class="st">"Average: "</span> &lt;&lt; (<span class="kw">double</span>)total/FLOORS;
+
+    <span class="cm">// ★ Now we can look back</span>
+    <span class="ty">cout</span> &lt;&lt; <span class="st">"\n\nXP by floor:\n"</span>;
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nu">0</span>; i &lt; FLOORS; i++) {
+        <span class="ty">cout</span> &lt;&lt; <span class="st">"Floor "</span> &lt;&lt; (i+<span class="nu">1</span>) &lt;&lt; <span class="st">": "</span>
+             &lt;&lt; xp[i] &lt;&lt; <span class="st">"\n"</span>;
+    }
+}</pre>
+        </div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:16px; padding-top:4px;">
+        <div class="callout">
+          <div class="callout-label">✓ what's new</div>
+          <p>Every value is preserved. We can loop over the data <em>again</em> to display, compare, or graph it.</p>
+        </div>
+        <div style="margin-top:8px;">
+          <div style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); margin-bottom:10px;">WHAT'S IN MEMORY AFTER THE LOOP:</div>
+          <div class="mem-grid">
+            <div class="mem-cell lit"><div class="val">120</div><div class="idx">[0]</div></div>
+            <div class="mem-cell lit"><div class="val">85</div><div class="idx">[1]</div></div>
+            <div class="mem-cell lit"><div class="val">210</div><div class="idx">[2]</div></div>
+            <div class="mem-cell lit"><div class="val">95</div><div class="idx">[3]</div></div>
+            <div class="mem-cell lit"><div class="val">160</div><div class="idx">[4]</div></div>
+          </div>
+          <div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--teal); margin-top:8px;">all floors: ████ preserved ✓</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ SLIDE 5: ASCII BAR CHART ═══════════ -->
+  <div class="slide" data-slide="5">
+    <div class="eyebrow">Bonus Feature</div>
+    <h2>The ASCII bar chart</h2>
+    <div class="divider"></div>
+    <div class="cols cols-60-40" style="flex:1; align-items:center;">
+      <div>
+        <p style="margin-bottom:20px;">Because we <em>stored</em> the data, we can visualize it. The trick: print one <code style="font-family:'JetBrains Mono',monospace; color:var(--amber);">█</code> character per N XP.</p>
+        <div class="code-block">
+          <div class="lang-tag">C++</div>
+<pre><span class="kw">void</span> <span class="fn">barChart</span>(<span class="kw">int</span> xp[], <span class="kw">int</span> floors) {
+    <span class="kw">const int</span> SCALE = <span class="nu">10</span>;  <span class="cm">// 1 bar = 10 XP</span>
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nu">0</span>; i &lt; floors; i++) {
+        <span class="ty">cout</span> &lt;&lt; <span class="st">"F"</span> &lt;&lt; (i+<span class="nu">1</span>) &lt;&lt; <span class="st">" | "</span>;
+        <span class="kw">for</span> (<span class="kw">int</span> b = <span class="nu">0</span>; b &lt; xp[i]/SCALE; b++)
+            <span class="ty">cout</span> &lt;&lt; <span class="st">"█"</span>;
+        <span class="ty">cout</span> &lt;&lt; <span class="st">" "</span> &lt;&lt; xp[i] &lt;&lt; <span class="st">"\n"</span>;
+    }
+}</pre>
+        </div>
+      </div>
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); margin-bottom:12px;">OUTPUT:</div>
+        <div class="bar-chart">
+          <div class="bar-row"><div class="bar-label">F1 |</div><div class="bar-fill" id="bar0" style="width:0px"><span class="bar-num">120</span></div></div>
+          <div class="bar-row"><div class="bar-label">F2 |</div><div class="bar-fill" id="bar1" style="width:0px"><span class="bar-num">85</span></div></div>
+          <div class="bar-row"><div class="bar-label">F3 |</div><div class="bar-fill amber" id="bar2" style="width:0px"><span class="bar-num">210</span></div></div>
+          <div class="bar-row"><div class="bar-label">F4 |</div><div class="bar-fill" id="bar3" style="width:0px"><span class="bar-num">95</span></div></div>
+          <div class="bar-row"><div class="bar-label">F5 |</div><div class="bar-fill" id="bar4" style="width:0px"><span class="bar-num">160</span></div></div>
+        </div>
+        <div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); margin-top:8px; text-align:right;">amber = highest XP</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ SLIDE 6: THE ARRAY PROBLEM ═══════════ -->
+  <div class="slide" data-slide="6">
+    <div class="eyebrow">The Catch</div>
+    <h2>Arrays have a fixed size</h2>
+    <div class="divider"></div>
+    <div style="flex:1; display:flex; flex-direction:column; justify-content:center; max-width:820px;">
+      <p style="margin-bottom: 24px;">Arrays are declared at compile time. You must know the size <em>before the program runs</em>.</p>
+      <div class="code-block" style="margin-bottom:24px;">
+        <div class="lang-tag">C++</div>
+<pre><span class="kw">int</span> xp[<span class="nu">5</span>];    <span class="cm">// ✓ fine — exactly 5</span>
+<span class="kw">int</span> xp[<span class="nu">100</span>];  <span class="cm">// ✓ works — wastes slots if user has fewer</span>
+<span class="kw">int</span> n;
+<span class="ty">cin</span> >> n;
+<span class="kw">int</span> xp[n];    <span class="cm">// ⚠ VLA — works in GCC but not standard C++</span></pre>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; max-width:680px;">
+        <div class="callout warn" style="margin:0;">
+          <div class="callout-label">⚡ real-world scenario</div>
+          <p>What if the dungeon has a random number of floors? Or the user picks how many sessions to track?</p>
+        </div>
+        <div class="callout" style="margin:0;">
+          <div class="callout-label">→ the solution</div>
+          <p>A container that can <em>grow at runtime</em>. In C++, that's <code style="font-family:'JetBrains Mono',monospace; color:var(--teal);">std::vector</code>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ SLIDE 7: VECTOR ═══════════ -->
+  <div class="slide" data-slide="7">
+    <div class="eyebrow">Approach 3</div>
+    <h2>std::vector — arrays that grow</h2>
+    <div class="divider"></div>
+    <div class="cols cols-60-40" style="flex:1;">
+      <div>
+        <div class="code-block">
+          <div class="lang-tag">C++</div>
+<pre><span class="pp">#include</span> <span class="st">&lt;vector&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;numeric&gt;</span>   <span class="cm">// for accumulate</span>
+<span class="pp">#include</span> <span class="st">&lt;algorithm&gt;</span> <span class="cm">// for max_element</span>
+
+<span class="kw">void</span> <span class="fn">partThree</span>() {
+    <span class="ty">vector</span>&lt;<span class="kw">int</span>&gt; xp;   <span class="cm">// starts empty</span>
+    <span class="kw">int</span> floors;
+
+    <span class="ty">cout</span> &lt;&lt; <span class="st">"How many floors? "</span>;
+    <span class="ty">cin</span> &gt;&gt; floors;
+
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nu">0</span>; i &lt; floors; i++) {
+        <span class="kw">int</span> val;
+        <span class="ty">cout</span> &lt;&lt; <span class="st">"Floor "</span> &lt;&lt; (i+<span class="nu">1</span>) &lt;&lt; <span class="st">": "</span>;
+        <span class="ty">cin</span> &gt;&gt; val;
+        xp.<span class="fn">push_back</span>(val);  <span class="cm">// ← grows automatically</span>
+    }
+
+    <span class="kw">int</span> total = <span class="fn">accumulate</span>(xp.<span class="fn">begin</span>(), xp.<span class="fn">end</span>(), <span class="nu">0</span>);
+    <span class="kw">auto</span> best = *<span class="fn">max_element</span>(xp.<span class="fn">begin</span>(), xp.<span class="fn">end</span>());
+
+    <span class="ty">cout</span> &lt;&lt; <span class="st">"Total: "</span> &lt;&lt; total &lt;&lt; <span class="st">"\n"</span>;
+    <span class="ty">cout</span> &lt;&lt; <span class="st">"Best floor: "</span> &lt;&lt; best &lt;&lt; <span class="st">" XP\n"</span>;
+}</pre>
+        </div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:14px; padding-top:4px;">
+        <div class="callout">
+          <div class="callout-label">✓ dynamic sizing</div>
+          <p><code style="font-family:'JetBrains Mono',monospace; color:var(--amber);">push_back()</code> adds one element at a time. The vector manages its own memory.</p>
+        </div>
+        <div class="callout">
+          <div class="callout-label">✓ STL algorithms</div>
+          <p><code style="font-family:'JetBrains Mono',monospace; color:var(--amber);">accumulate</code> and <code style="font-family:'JetBrains Mono',monospace; color:var(--amber);">max_element</code> replace manual loops entirely.</p>
+        </div>
+        <div class="callout warn" style="margin:0;">
+          <div class="callout-label">note for now</div>
+          <p>Vectors come later in the course. For this module, arrays are the target. This is a preview of where we're headed.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ SLIDE 8: COMPARISON ═══════════ -->
+  <div class="slide" data-slide="8">
+    <div class="eyebrow">Side by Side</div>
+    <h2>Three approaches compared</h2>
+    <div class="divider"></div>
+    <div style="flex:1; display:flex; flex-direction:column; justify-content:center;">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Approach</th>
+            <th>Total / Avg</th>
+            <th>Look back at data</th>
+            <th>Dynamic size</th>
+            <th>Best for</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Loop only</td>
+            <td><span class="pill yes">yes</span></td>
+            <td><span class="pill no">no</span></td>
+            <td><span class="pill ok">n/a</span></td>
+            <td style="color:#b0b8d0; font-size:14px;">single-pass totals, no history needed</td>
+          </tr>
+          <tr>
+            <td>Array</td>
+            <td><span class="pill yes">yes</span></td>
+            <td><span class="pill yes">yes</span></td>
+            <td><span class="pill no">no</span></td>
+            <td style="color:#b0b8d0; font-size:14px;">known fixed count at compile time</td>
+          </tr>
+          <tr>
+            <td>std::vector</td>
+            <td><span class="pill yes">yes</span></td>
+            <td><span class="pill yes">yes</span></td>
+            <td><span class="pill yes">yes</span></td>
+            <td style="color:#b0b8d0; font-size:14px;">runtime-sized collections, modern C++</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="callout" style="margin-top:28px; max-width:680px;">
+        <div class="callout-label">module 6 focus</div>
+        <p>For now, we work with <span class="accent">fixed-size arrays</span>. They teach the fundamental model: indexed, contiguous, random-access storage. Vectors come once that foundation is solid.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ SLIDE 9: SUMMARY ═══════════ -->
+  <div class="slide" data-slide="9">
+    <div class="eyebrow">Skill Unlocked</div>
+    <h2>What you can now build</h2>
+    <div class="divider"></div>
+    <div style="flex:1; display:flex; flex-direction:column; justify-content:center;">
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; max-width:820px; margin-bottom:28px;">
+        <div style="background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:20px;">
+          <div style="font-family:'JetBrains Mono',monospace; font-size:28px; color:var(--teal); margin-bottom:10px;">[ ]</div>
+          <div style="font-family:'Rajdhani',sans-serif; font-size:18px; font-weight:600; color:var(--text); margin-bottom:6px;">Store Collections</div>
+          <div style="font-size:14px; color:var(--muted); line-height:1.5;">Group related values under one name, indexed for instant access</div>
+        </div>
+        <div style="background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:20px;">
+          <div style="font-family:'JetBrains Mono',monospace; font-size:28px; color:var(--amber); margin-bottom:10px;">∑</div>
+          <div style="font-family:'Rajdhani',sans-serif; font-size:18px; font-weight:600; color:var(--text); margin-bottom:6px;">Compute Stats</div>
+          <div style="font-size:14px; color:var(--muted); line-height:1.5;">Total, average, min, max — pass the full dataset to functions</div>
+        </div>
+        <div style="background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:20px;">
+          <div style="font-family:'JetBrains Mono',monospace; font-size:28px; color:var(--text); margin-bottom:10px;">▐▐█</div>
+          <div style="font-family:'Rajdhani',sans-serif; font-size:18px; font-weight:600; color:var(--text); margin-bottom:6px;">Visualize Data</div>
+          <div style="font-size:14px; color:var(--muted); line-height:1.5;">ASCII bar charts, histograms, ranked output — all from one array</div>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:20px;">
+        <div class="badge-box">
+          <div class="badge-icon" style="font-size:28px; color:var(--teal);">▣</div>
+          <div>
+            <div class="badge-text">Arrays Unlocked</div>
+            <div class="badge-sub">CSC 134 · Module 6 · B-level territory</div>
+          </div>
+        </div>
+        <div style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); line-height:1.8;">
+          Next up:<br>
+          <span class="accent">→</span> Passing arrays to functions<br>
+          <span class="accent">→</span> Parallel arrays for related data<br>
+          <span class="accent">→</span> File I/O for persistent storage
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /deck -->
+
+<!-- ─── CHROME ─── -->
+<div class="progress-bar" id="progressBar" style="width:0%"></div>
+<div class="chrome">
+  <div id="slideLabel">slide 1 / 10</div>
+  <div style="display:flex; gap:8px; align-items:center;">
+    <span style="font-size:11px; margin-right:8px;">← → spacebar</span>
+    <button class="nav-btn" onclick="go(-1)">← prev</button>
+    <button class="nav-btn" onclick="go(+1)">next →</button>
+  </div>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  let cur = 0;
+  const total = slides.length;
+
+  function show(n, dir) {
+    slides[cur].classList.remove('active');
+    slides[cur].classList.add('exit');
+    const prev = cur;
+    cur = (n + total) % total;
+    setTimeout(() => slides[prev].classList.remove('exit'), 400);
+    slides[cur].classList.add('active');
+    document.getElementById('slideLabel').textContent =
+      `slide ${cur + 1} / ${total}`;
+    document.getElementById('progressBar').style.width =
+      ((cur / (total - 1)) * 100) + '%';
+    if (cur === 5) animateBars();
+  }
+
+  function go(d) { show(cur + d, d); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); go(+1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); }
+  });
+
+  /* Bar chart animation */
+  const barData = [120, 85, 210, 95, 160];
+  const maxVal = Math.max(...barData);
+  const maxW = 180;
+  let barsAnimated = false;
+
+  function animateBars() {
+    if (barsAnimated) return;
+    barsAnimated = true;
+    setTimeout(() => {
+      barData.forEach((v, i) => {
+        const el = document.getElementById('bar' + i);
+        if (el) el.style.width = Math.round((v / maxVal) * maxW) + 'px';
+      });
+    }, 80);
+  }
+
+  /* init progress */
+  document.getElementById('progressBar').style.width = '0%';
+</script>
+</body>
+</html>

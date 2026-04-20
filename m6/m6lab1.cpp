@@ -43,6 +43,111 @@ int main() {
     // Each round changes what's loaded?
     // and more
 
+    // Basic structure could be:
+    // while (playerHP > 0 && dealerHP > 0) is main game loop
+    // ask player for action: shoot (s)elf or (d)ealer 
+    // (items come later)
+    // then fire the shot and process it
+
+    // MAIN GAME LOOP
+    int playerHP = 3;
+    int dealerHP = 3;
+    char choice;
+    char shot;
+    slime = 1;
+    water = 1;
+    bool skip_next = false;
+
+    while (playerHP > 0 && dealerHP > 0) {
+        cout << "PLAYER: " << playerHP << " HP" << endl;
+        cout << "DEALER: " << dealerHP << " HP" << endl;
+        loadMagazine(magazine, slime, water);
+        displayMagazine(magazine);
+
+        // first, player goes
+        cout << "Your turn: fire at (s)elf or (d)ealer: ";
+        cin >> choice;
+        if (choice == 's' || choice == 'S') {
+            // shoot at self
+            cout << "You turn the gun on yourself...";
+            if (!magazine.empty()) {
+            char s = fireShot(magazine);
+            if (s == 'S') {
+                cout << "SLIMED! (-1hp)\n";
+                playerHP -= 1;
+            }
+            else if (s == 'W') {
+                cout << "Water!\n";
+                // water on yourself -- skip opponent's turn
+                skip_next = true;
+            }
+
+        }
+
+        } else {
+            // shoot at dealer
+        }
+
+        // does gun need to be reloaded?
+        if (magazine.empty()) {
+            // add 1 to slime or to water
+            slime++;
+            water++;
+            loadMagazine(magazine, slime, water);
+            displayMagazine(magazine);
+        }
+
+        // then, dealer goes
+        if (skip_next) {
+            cout << "Skipping dealer's turn..." << endl;
+            skip_next = false; 
+        } else {
+            // dealer shoots
+            // random chance dealer shoots self or player: 50/50
+            if (choice == 's' || choice == 'S') {
+            // shoot at self
+            cout << "Dealer aims at themselves...";
+            if (!magazine.empty()) {
+            char s = fireShot(magazine);
+            if (s == 'S') {
+                cout << "SLIMED! (-1hp)\n";
+                dealerHP -= 1;
+            }
+            else if (s == 'W') {
+                cout << "Water!\n";
+                // water on yourself -- skip opponent's turn
+                skip_next = true;
+            }
+
+
+            } else {
+                // shoot at player
+                cout << "Dealer aims at you...";
+                if (!magazine.empty()) {
+                char s = fireShot(magazine);
+                if (s == 'S') {
+                    cout << "SLIMED! (-1hp)\n";
+                    playerHP -= 1;
+                }
+                else {
+                    cout << "Water!" << endl;
+                }
+            }
+
+        // does gun need to be reloaded?
+        if (magazine.empty()) {
+            // add 1 to slime or to water
+            slime++;
+            water++;
+            loadMagazine(magazine, slime, water);
+            displayMagazine(magazine);
+        }
+
+
+        }
+
+    }
+
 }
 
 // Full Functions go here

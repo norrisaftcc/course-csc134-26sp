@@ -19,6 +19,7 @@ class Restaurant {
      void setRating(double r);
      string getName() const;
      double getRating() const;
+     void display() const; 
 
 };
 
@@ -45,6 +46,32 @@ double Restaurant::getRating() const {
     return rating;
 }
 
+void Restaurant::display() const {
+    cout << name << ": ";
+    
+    // Cast the double to an int to get the number of solid whole stars
+    int fullStars = static_cast<int>(rating); 
+    
+    // Determine if there is a remainder of 0.5 or greater
+    bool hasHalfStar = (rating - fullStars) >= 0.5;
+
+    // Print the full star emojis
+    for (int i = 0; i < fullStars; i++) {
+        cout << "⭐";
+    }
+
+    // Print a half-star representation. 
+    // Since standard emojis don't have a clean "half star", 
+    // we use a sparkle emoji here. You could also use a standard '½' character.
+    if (hasHalfStar) {
+        cout << " ½";
+    }
+
+    // Print the numerical value for clarity at the end
+    cout << " (" << rating << "/5)" << endl;
+
+}
+
 // main
 int main() {
     // Quick test
@@ -53,11 +80,12 @@ int main() {
 
     cout << "Restaurant Review" << endl;
     cout << "Enter restaurant name: "; 
-    cin >> name;
+    getline(cin, name);
     cout << "Enter restaurant rating: ";
     cin >> rating;
 
     Restaurant rest1 = Restaurant(name, rating);
-    cout << rest1.getName();
-    cout << rest1.getRating();
+    //cout << rest1.getName() << endl;
+    //cout << rest1.getRating() << endl;
+    rest1.display();
 }

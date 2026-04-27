@@ -47,5 +47,17 @@ double Restaurant::getRating() const {
 
 // main
 int main() {
+    // Quick test
+    string name;
+    double rating;
 
+    cout << "Restaurant Review" << endl;
+    cout << "Enter restaurant name: "; 
+    cin >> name;
+    cout << "Enter restaurant rating: ";
+    cin >> rating;
+
+    Restaurant rest1 = Restaurant(name, rating);
+    cout << rest1.getName();
+    cout << rest1.getRating();
 }

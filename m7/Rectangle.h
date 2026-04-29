@@ -26,16 +26,14 @@ class Rectangle {
      void setLength(double l) {
         length = l;
      }
-     // maybe add drawRectangle() later
-
-
-
-
-
+     void drawRectangle() {
+        std::string pixel = "* "; // use whatever
+        for (int i=0; i< length; i++) {
+            for (int j=0; j<width; j++) {
+                std::cout << pixel;
+            }
+            std::cout << std::endl;
+        }
+     }
 };
-
-
-
-
-
 #endif // RECTANGLE_H
